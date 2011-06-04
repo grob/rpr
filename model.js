@@ -48,6 +48,14 @@ var RelPackageAuthor = store.defineEntity("RelPackageAuthor", {
     }
 });
 
+RelPackageAuthor.get = function(pkg, author, role) {
+    return RelPackageAuthor.query()
+        .equals("package", pkg)
+        .equals("author", author)
+        .equals("role", role)
+        .select()[0];
+};
+
 var Package = store.defineEntity("Package", {
     "table": "T_PACKAGE",
     "id": {
@@ -94,7 +102,7 @@ var Package = store.defineEntity("Package", {
         "versions": {
             "type": "collection",
             "entity": "Version",
-            "foreignProperty": "VSN_F_PKG"
+            "foreignProperty": "package"
         },
         "maintainers": {
             "type": "collection",
