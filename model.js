@@ -2,6 +2,7 @@ var log = require('ringo/logging').getLogger(module.id);
 var {Store} = require("ringo-sqlstore");
 var config = require('./config');
 var dates = require("ringo/utils/dates");
+var semver = require("ringo-semver");
 
 export("store", "Package", "Version", "User", "Author", "RelPackageAuthor");
 
@@ -134,6 +135,19 @@ Package.create = function(name, author, creator) {
     });
 };
 
+Package.remove = function(pkg) {
+    pkg.versions.forEach(function(v) {
+        v.remove();
+    });
+    for each (var key in ["contributor", "maintainer"]) {
+        pkg[key + "s"].forEach(function(author) {
+            RelPackageAuthor.get(pkg, author, key).remove();
+        });
+    }
+    pkg.remove();
+    return;
+};
+
 Package.getByName = function(name) {
     return Package.query().equals("name", name).select()[0] || null;
 };
@@ -142,7 +156,7 @@ Package.prototype.serialize = function() {
     var result = this.serializeMin();
     result.versions = {};
     result.modified = {};
-    for each (let version in Version.getByPackage(this)) {
+    for each (let version in this.versions) {
         result.versions[version.version] = version.serializeMin();
         result.modified[version.version] = dates.format(version.modifytime, DATEFORMAT);
     }
@@ -171,6 +185,14 @@ Package.prototype.serializeMin = function() {
 
 Package.prototype.getVersion = function(version) {
     return Version.query().equals("package", this).equals("version", version).select()[0] || null;
+};
+
+Package.prototype.isOwner = function(user) {
+    return this.creator._key.equals(user._key);
+};
+
+Package.prototype.isLatestVersion = function(version) {
+    return version._key.equals(this.latestVersion._key);
 };
 
 var Version = store.defineEntity("Version", {
@@ -244,6 +266,19 @@ Version.create = function(pkg, descriptor, filename, checksums, creator) {
         "modifier": creator,
         "modifytime": new Date()
     });
+};
+
+Version.remove = function(pkg, version) {
+    if (pkg.isLatestVersion(version)) {
+        // re-assign the latest version of the package
+        var versionNumbers = semver.sort(pkg.versions.map(function(v) {
+            return v.version;
+        }), -1);
+        pkg.latestVersion = pkg.getVersion(versionNumbers[1]);
+        pkg.save();
+    }
+    version.remove();
+    return;
 };
 
 Version.getByVersion = function(version, pkg) {
