@@ -78,7 +78,8 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
     return;
 });
 
-app.del("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr) {
+// FIXME: this should be a DELETE route (digest/basicauth needed)
+app.post("/packages/:pkgName/:versionStr/delete", function(request, pkgName, versionStr) {
     var username = request.postParams.username;
     var password = request.postParams.password;
     try {
@@ -90,15 +91,34 @@ app.del("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr)
                 if (version.creator._id !== user._id) {
                     throw new Error("Only the publisher of a version can unpublish it");
                 }
+                store.beginTransaction();
                 version.remove();
+                if (pkg.versions.length < 1) {
+                    // remove package as well
+                    pkg.maintainers.forEach(function(maintainer) {
+                        RelPackageAuthor.get(pkg, maintainer, "maintainer").remove();
+                    });
+                    pkg.contributors.forEach(function(contributor) {
+                        RelPackageAuthor.get(pkg, contributor, "contributor").remove();
+                    });
+                    pkg.remove();
+                } else if (pkg.latestVersion._key.equals(version._key)) {
+                    var versionNumbers = semver.sort(pkg.versions.map(function(version) {
+                        return version.version;
+                    }), -1);
+                    pkg.latestVersion = pkg.getVersion(versionNumbers[0]);
+                    pkg.save();
+                }
+                store.commitTransaction();
                 return response.ok({
                     "message": "Version " + version.version + " of package " +
-                        version.package.name + " has been removed"
+                        pkg.name + " has been removed"
                 });
             }
         }
     } catch (e) {
         log.error(e);
+        store.abortTransaction();
         return response.error({
             "message": e.message
         });
