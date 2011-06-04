@@ -1,6 +1,6 @@
 var semver = require("ringo-semver");
 
-export("parseAuthor", "evalDescriptor", "normalizeDescriptor");
+export("parseAuthor", "evalDescriptor", "normalizeDescriptor", "bytesToHex", "hexToBytes");
 
 var parseAuthor = function(str) {
     var result = {};
@@ -74,4 +74,22 @@ var normalizeDescriptor = function(descriptor) {
             return author;
         });
     }
+};
+
+var bytesToHex = function(bytes) {
+    var buf = new java.lang.StringBuffer(bytes.length * 2);
+    for (let idx = 0; idx < bytes.length; idx += 1) {
+        buf.append(java.lang.Integer.toString((bytes[idx] & 0xff) + 0x100, 16).substring(1));
+    }
+    return buf.toString();
+};
+
+var hexToBytes = function(str) {
+    var len = str.length;
+    var data = new ByteArray(len / 2);
+    for (let idx = 0; idx < len; idx += 2) {
+        data[idx / 2] = ((java.lang.Character.digit(str.charAt(idx), 16) << 4)
+                             + java.lang.Character.digit(str.charAt(idx + 1), 16));
+    }
+    return data;
 };

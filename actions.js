@@ -7,7 +7,6 @@ var dates = require("ringo/utils/dates");
 var {store, Package, Version, User, Author, RelPackageAuthor} = require("./model");
 var config = require("./config");
 var response = require("./response");
-var crypto = require("ringo-crypto");
 var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
 var utils = require("./utils");
@@ -202,9 +201,9 @@ var storeFile = function(bytes, filename) {
         sha1Stream = new java.security.DigestOutputStream(fileOutStream, md5Digest);
         sha256Stream = new java.security.DigestOutputStream(fileOutStream, md5Digest);
         byteStream.copy(fileOutStream);
-        checksums.md5 = crypto.bytesToHex(md5Digest.digest());
-        checksums.sha1 = crypto.bytesToHex(sha1Digest.digest());
-        checksums.sha256 = crypto.bytesToHex(sha256Digest.digest());
+        checksums.md5 = utils.bytesToHex(md5Digest.digest());
+        checksums.sha1 = utils.bytesToHex(sha1Digest.digest());
+        checksums.sha256 = utils.bytesToHex(sha256Digest.digest());
     } finally {
         for each (let stream in [byteStream, fileOutStream, md5Stream, sha1Stream, sha256Stream]) {
             if (stream != null) {
