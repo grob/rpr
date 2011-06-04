@@ -1,0 +1,14 @@
+{
+    "name": "ringo-rpr",
+    "version": "0.1",
+    "description": "RingoJS Package registry application",
+    "keywords": ["rhino", "ringo", "package", "packages", "manager"],
+    "author": "Robert Gaggl (http://nomatic.org/) <robert@nomatic.org>",
+    "dependencies": {
+        "sqlstore": ">=0.1",
+        "crypto": ">=0.1"
+    },
+    "contributors": [],
+    "implements": ["CommonJS/Packages/1.0"],
+    "main": "./main.js"
+}
