@@ -3,5 +3,5 @@ exports.dbProps = {
    username: "rpr",
    password: "rpr"
 };
-exports.tmpDir = "/Users/robert/ringo/ringo-rpr/tmp";
-exports.packageDir = "/Users/robert/ringo/ringo-rpr/packages";
+exports.tmpDir = "/Users/robert/ringo/rpr/tmp";
+exports.packageDir = "/Users/robert/ringo/rpr/packages";
