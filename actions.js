@@ -95,13 +95,14 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
     var username = request.postParams.username;
     var password = request.postParams.password;
     var force = request.postParams.force === "true";
-    var descriptor = request.postParams.descriptor;
+    var descriptorJson = request.postParams.descriptor;
     var pkg = request.postParams.pkg;
     var tmpFilePath = null;
     try {
         var user = registry.authenticate(username, password);
-        var descriptor = utils.evalDescriptor(JSON.parse(descriptor));
+        var descriptor = JSON.parse(descriptorJson);
         utils.normalizeDescriptor(descriptor);
+        utils.evalDescriptor(descriptor);
         var [tmpFilePath, checksums] = registry.storeTemporaryFile(pkg.value, pkg.filename);
         var filename = registry.getFinalFileName(tmpFilePath, descriptor.name, descriptor.version);
         registry.publishPackage(descriptor, filename, checksums, user, force);

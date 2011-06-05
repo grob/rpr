@@ -52,8 +52,8 @@ var evalDescriptor = function(descriptor) {
             throw new Error("Invalid version number '" + descriptor.version + "'");
         }
     }
-    if ((typeof(descriptor.author) !== "string" || descriptor.author.length < 1) &&
-            (!descriptor.contributors || !(descriptor.contributors instanceof Array) ||
+    if (!descriptor.hasOwnProperty("author") &&
+            (!(descriptor.contributors instanceof Array) ||
                     descriptor.contributors.length < 1)) {
         throw new Error("Missing author or initial contributor");
     }
@@ -74,6 +74,7 @@ var normalizeDescriptor = function(descriptor) {
             return author;
         });
     }
+    return descriptor;
 };
 
 var bytesToHex = function(bytes) {

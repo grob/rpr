@@ -173,10 +173,25 @@ function unpublish(pkg, version, user) {
 }
 
 function storeAuthor(data) {
-    var author = Author.getByName(data.name);
+    var author = null;
+    if (data.hasOwnProperty("email")) {
+        author = Author.getByEmail(data.email);
+    }
     if (author === null) {
-        author = new Author(data);
+        author = Author.create(data.name, data.email, data.web);
         author.save();
+    } else {
+        // update author with values received
+        var modified = false;
+        for each (var key in ["name", "email", "web"]) {
+            if (data.hasOwnProperty(key) && data[key] != author[key]) {
+                author[key] = data[key];
+                modified = true;
+            }
+        }
+        if (modified) {
+            author.save();
+        }
     }
     return author;
 }

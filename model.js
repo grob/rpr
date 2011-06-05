@@ -392,8 +392,21 @@ var Author = store.defineEntity("Author", {
     }
 });
 
+Author.create = function(name, email, web) {
+    return new Author({
+        "name": name,
+        "email": email,
+        "web": web,
+        "createtime": new Date()
+    });
+};
+
 Author.getByName = function(name) {
     return Author.query().equals("name", name).select()[0] || null;
+};
+
+Author.getByEmail = function(email) {
+    return Author.query().equals("email", email).select()[0] || null;
 };
 
 Author.prototype.serialize = function() {
