@@ -3,5 +3,8 @@ exports.dbProps = {
    username: "rpr",
    password: "rpr"
 };
-exports.tmpDir = "/Users/robert/ringo/rpr/tmp";
-exports.packageDir = "/Users/robert/ringo/rpr/packages";
+// temporary directory
+exports.tmpDir = module.resolve("../rpr.static/tmp/");
+
+// directory containing published package tarballs
+exports.packageDir = module.resolve("../rpr.static/packages/");

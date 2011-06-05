@@ -6,8 +6,7 @@ require("ringo/logging").setConfig(getResource("./log4j.properties"));
 
 var app = exports.app = require("./actions").app;
 app.configure("static");
-app.static(module.resolve("static"));
-app.static(module.resolve("packages"));
+app.static(config.packageDir);
 
 //Script run from command line
 if (require.main === module) {
