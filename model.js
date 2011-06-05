@@ -11,19 +11,7 @@ var DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.S'Z'";
 /**
  * create store
  */
-var store = new Store({
-    /*
-    "url": "jdbc:h2:file:" + config.dbPath + "/" + config.dbProps.database,
-    "driver": "org.h2.Driver",
-    */
-    "url": "jdbc:mysql://localhost/rpr",
-    "driver": "com.mysql.jdbc.Driver",
-    "username": config.dbProps.username,
-    "password": config.dbProps.password
-}, {
-   maxConnections: 100,
-   cacheSize: 1000
-});
+var store = new Store(config.dbProps, config.storeOptions);
 
 var RelPackageAuthor = store.defineEntity("RelPackageAuthor", {
     "table": "T_REL_PACKAGE_AUTHOR",
