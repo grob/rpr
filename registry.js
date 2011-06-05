@@ -73,6 +73,10 @@ function storeTemporaryFile(bytes, filename) {
 }
 
 function publishPackage(descriptor, filename, checksums, user, force) {
+    var pkg = Package.getByName(descriptor.name);
+    if (pkg != null && !pkg.isOwner(user)) {
+        throw new Error("Only the original author of a package can publish a version");
+    }
     store.beginTransaction();
     try {
         // author (optional, using first contributor if not specified)
@@ -83,8 +87,9 @@ function publishPackage(descriptor, filename, checksums, user, force) {
         // contributors and maintainers
         var contributors = descriptor.contributors.map(storeAuthor);
         var maintainers = descriptor.maintainers.map(storeAuthor);
-        var pkg = Package.getByName(descriptor.name) ||
-                    Package.create(descriptor.name, author || contributors[0], user);
+        if (pkg == null) {
+            pkg = Package.create(descriptor.name, author || contributors[0], user);
+        }
         // store/update version
         var version = pkg._id && pkg.getVersion(descriptor.version);
         if (!version) {
