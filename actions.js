@@ -2,7 +2,6 @@ var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var fs = require("fs");
 var {store, Package, Version, User, Author, RelPackageAuthor} = require("./model");
-var config = require("./config");
 var response = require("./response");
 var semver = require("ringo-semver");
 var registry = require("./registry");
