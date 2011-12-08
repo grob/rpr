@@ -11,7 +11,9 @@ var DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.S'Z'";
 /**
  * create store
  */
-var store = new Store(config.dbProps, config.storeOptions);
+var store = module.singleton("store", function() {
+    return new Store(config.dbProps, config.storeOptions);
+});
 
 var RelPackageAuthor = store.defineEntity("RelPackageAuthor", {
     "table": "T_REL_PACKAGE_AUTHOR",
@@ -37,12 +39,22 @@ var RelPackageAuthor = store.defineEntity("RelPackageAuthor", {
     }
 });
 
+RelPackageAuthor.create = function(pkg, author, role) {
+    return new RelPackageAuthor({
+        "package": pkg,
+        "author": author,
+        "role": role
+    })
+};
+
 RelPackageAuthor.get = function(pkg, author, role) {
-    return RelPackageAuthor.query()
+    var query = RelPackageAuthor.query()
         .equals("package", pkg)
-        .equals("author", author)
-        .equals("role", role)
-        .select()[0];
+        .equals("author", author);
+    if (role != null) {
+        query.equals("role", role);
+    }
+    return query.select()[0];
 };
 
 var Package = store.defineEntity("Package", {
@@ -180,7 +192,11 @@ Package.prototype.isOwner = function(user) {
 };
 
 Package.prototype.isLatestVersion = function(version) {
-    return version._key.equals(this.latestVersion._key);
+    return this.latestVersion.equals(version);
+};
+
+Package.prototype.equals = function(pkg) {
+    return this._key.equals(pkg._key);
 };
 
 var Version = store.defineEntity("Version", {
@@ -305,6 +321,10 @@ Version.prototype.serialize = function() {
     return result;
 };
 
+Version.prototype.equals = function(version) {
+    return this._key.equals(version._key);
+};
+
 var User = store.defineEntity("User", {
     "table": "T_USER",
     "id": {
@@ -352,6 +372,10 @@ User.create = function(username, password, salt, email) {
 
 User.getByName = function(name) {
     return User.query().equals("name", name).select()[0] || null;
+};
+
+User.prototype.equals = function(user) {
+    return this._key.equals(user._key);
 };
 
 var Author = store.defineEntity("Author", {
@@ -403,4 +427,8 @@ Author.prototype.serialize = function() {
         "email": this.email,
         "web": this.web
     };
+};
+
+Author.prototype.equals = function(author) {
+    return this._key.equals(author._key);
 };
