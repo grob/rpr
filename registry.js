@@ -9,7 +9,7 @@ var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
 var utils = require("./utils");
 
-export("authenticate", "publishPackage", "publishFile", "unpublish", "storeTemporaryFile", "getFinalFileName");
+export("authenticate", "publishPackage", "publishFile", "unpublish", "storeTemporaryFile", "createFileName");
 
 function authenticate(username, password) {
     var user = User.getByName(username);
@@ -42,7 +42,7 @@ function storeTemporaryFile(bytes, filename) {
     var extension = fs.extension(filename);
     var prefix = fs.base(filename, extension);
     var path = files.createTempFile(prefix, extension, config.tmpDir);
-    
+
     // prepare checksum calculation
     var md5Digest = java.security.MessageDigest.getInstance("MD5");
     var sha1Digest = java.security.MessageDigest.getInstance("SHA-1");
@@ -102,7 +102,7 @@ function publishPackage(descriptor, filename, checksums, user, force) {
             version.modifytime = new Date();
             version.save();
             // update package too, if this is the latest version
-            if (version._id === pkg.latestVersion._id) {
+            if (pkg.isLatestVersion(version)) {
                 pkg.descriptor = version.descriptor;
                 pkg.save();
             }
@@ -111,23 +111,24 @@ function publishPackage(descriptor, filename, checksums, user, force) {
             throw new Error("Version " + version.version + " of package " +
                     descriptor.name + " has already been published");
         }
-    
+
         // store relations between contributors/maintainers and the package
         storeAuthorRelations(pkg, pkg.contributors, contributors, "contributor");
         storeAuthorRelations(pkg, pkg.maintainers, maintainers, "maintainer");
-    
+
         store.commitTransaction();
     } catch (e) {
         log.info(e);
         store.abortTransaction();
         throw e;
     }
-    return filename;
+    return;
 }
 
 function publishFile(tmpFilePath, filename) {
     if (!fs.exists(config.packageDir) || !fs.isWritable(config.packageDir)) {
-        throw new Error("Unable to store package archive");
+        throw new Error("Unable to store package archive:", config.packageDir,
+                "doesn't exist or isn't writable");
     }
     var dest = fs.join(config.packageDir, filename);
     log.info("Moving package file from", tmpFilePath, "to", dest);
@@ -139,7 +140,7 @@ function publishFile(tmpFilePath, filename) {
     return;
 }
 
-function getFinalFileName(tmpFilePath, pkgName, version) {
+function createFileName(tmpFilePath, pkgName, version) {
     var extension = fs.extension(tmpFilePath);
     return pkgName + "-" + version + extension;
 }
@@ -206,11 +207,7 @@ function storeAuthorRelations(pkg, collection, authors, role) {
     // add authors in list if they aren't already
     for each (let author in authors) {
         if (collection.indexOf(author) < 0) {
-            var relation = new RelPackageAuthor({
-                "package": pkg,
-                "author": author,
-                "role": role
-            });
+            var relation = RelPackageAuthor.create(pkg, author, role);
             relation.save();
             log.info("Added", author.name, "as", role, "to", pkg.name);
         }
@@ -222,11 +219,9 @@ function storeAuthorRelations(pkg, collection, authors, role) {
     collection.filter(function(author) {
         return ids.indexOf(author._id) < 0;
     }).forEach(function(author) {
-        var relations = RelPackageAuthor.query().equals("package", pkg).equals("author", author).select();
-        relations.forEach(function(relation) {
-            log.info("Removed", author.name, "as", role, "from", pkg.name);
-            relation.remove();
-        });
+        var relation = RelPackageAuthor.get(pkg, author, role);
+        relation.remove();
+        log.info("Removed", author.name, "as", role, "from", pkg.name);
     })
     return;
 }
