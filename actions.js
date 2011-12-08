@@ -103,8 +103,10 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
         var descriptor = JSON.parse(descriptorJson);
         utils.normalizeDescriptor(descriptor);
         utils.evalDescriptor(descriptor);
+        // store package as temporary file
         var [tmpFilePath, checksums] = registry.storeTemporaryFile(pkg.value, pkg.filename);
-        var filename = registry.getFinalFileName(tmpFilePath, descriptor.name, descriptor.version);
+        var filename = registry.createFileName(tmpFilePath, descriptor.name, descriptor.version);
+        // publish package
         registry.publishPackage(descriptor, filename, checksums, user, force);
         // move file to final destination
         registry.publishFile(tmpFilePath, filename);
