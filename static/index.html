@@ -1,0 +1,57 @@
+<!DOCTYPE html >
+<html lang="en" dir="ltr">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>RingoJS Package Repository</title>
+    <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/main.css" />
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.tmpl.js"></script>
+    <script type="text/javascript" src="js/lib/underscore.js"></script>
+    <script type="text/javascript" src="js/lib/backbone.js"></script>
+    <script type="text/javascript" src="js/lib/backbone.mapping.js"></script>
+    <script type="text/javascript" src="js/lib/sea.js"></script>
+    <script type="text/javascript">
+        seajs.config({
+           "base": "js"
+        });
+        seajs.use("app", function(module) {
+            var app = new module.App();
+            $(document).ready(app.init());
+        });
+    </script>
+</head>
+<body>
+
+    <header>
+        <h1>RingoJS Package Repository</h1>
+    </header>
+
+    <div id="main">
+        <input type="text" id="search" placeholder="Search" />
+        <ul id="list"></ul>
+    </div>
+
+    <script id="tmpl-package" type="text/html">
+        <h2>${name} ${latest}</h2>
+        <p>${description}</p>
+        <dl class="details">
+            {{if (keywords)}}
+                <dt>Keywords</dt>
+                <dd>${keywords.join(", ")}</dd>
+            {{/if}}
+            <dt>Author</dt>
+            <dd>${author.name}</dd>
+            {{if (homepage)}}
+                <dt>Website</dt>
+                <dd><a href="${homepage}">${homepage}</a></dd>
+            {{/if}}
+            <dt>Last modified</dt>
+            <dd>${$data.modified[latest]}</dd>
+        </dl>
+        <div class="clearer"></div>
+    </script>
+
+</body>
+</html>

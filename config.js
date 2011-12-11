@@ -13,5 +13,8 @@ exports.storeOptions = {
 // temporary directory
 exports.tmpDir = module.resolve("../rpr.static/tmp/");
 
+// directory containing static resources
+exports.staticDir = module.resolve("../rpr/static/");
+
 // directory containing published package tarballs
 exports.packageDir = module.resolve("../rpr.static/packages/");

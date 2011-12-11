@@ -1,5 +1,4 @@
 var log = require("ringo/logging").getLogger(module.id);
-var {Application} = require("stick");
 var fs = require("fs");
 var io = require("io");
 var strings = require("ringo/utils/strings");

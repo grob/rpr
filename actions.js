@@ -2,6 +2,8 @@ var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var fs = require("fs");
 var {store, Package, Version, User, Author, RelPackageAuthor} = require("./model");
+var {mimeType} = require("ringo/mime");
+var config = require("./config");
 var response = require("./response");
 var semver = require("ringo-semver");
 var registry = require("./registry");
@@ -9,6 +11,21 @@ var utils = require("./utils");
 
 var app = exports.app = new Application();
 app.configure("etag", "requestlog", "error", "notfound", "params", "upload", "route");
+
+/**
+ * Package archive download route
+ */
+app.get("/package/:pkgName", function(request, pkgName) {
+    var repo = getRepository(config.packageDir);
+    var archive = repo.getResource(pkgName);
+    if (archive && archive.exists()) {
+        return response.static(archive, mimeType(pkgName));
+    } else {
+        return response.notfound({
+            "message": "Package '" + pkgName + "' does not exist"
+        });
+    }
+});
 
 app.get("/packages.json", function(request) {
     return response.ok(Package.all().map(function(pkg) {

@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+}
+.clearer {
+    clear: left;
+    float: none;
+}
+
+header {
+    padding: 10px;
+}
+header h1 {
+    font-size: 1.2em;
+    color: #666666;
+    text-shadow: 1px 1px 3px #bfbfbf;
+}
+
+#main {
+    margin: 20px;
+}
+#main ul {
+    margin-top: 10px;
+}
+#main ul li {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #efefef;
+    font-size: 0.9em;
+}
+#main ul li h2 {
+    font-weight: bold;
+}
+#main ul li dl {
+    margin-top: 5px;
+}
+#main ul li dl dt {
+    clear: left;
+    float: left;
+}
+#main ul li dl dt:after {
+    content: ":";
+}
+#main ul li dl dd {
+    float: left;
+    margin-left: 10px;
+}

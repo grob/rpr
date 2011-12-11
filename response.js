@@ -2,9 +2,7 @@
  * @fileoverview JSGI Response Helpers
  */
 
-export("redirect", "ok", "error", "notfound");
-
-function redirect(path) {
+exports.redirect = function(path) {
    return {
       status: 302,
       headers: {
@@ -14,7 +12,7 @@ function redirect(path) {
    };
 };
 
-function ok(body) {
+exports.ok = function(body) {
    return {
       status: 200,
       headers: {
@@ -24,7 +22,7 @@ function ok(body) {
    };
 };
 
-function error(body) {
+exports.error = function(body) {
    return {
       status: 500,
       headers: {
@@ -34,7 +32,7 @@ function error(body) {
    };
 };
 
-function notfound(body) {
+exports.notfound = function(body) {
    return {
       status: 404,
       headers: {
@@ -43,3 +41,5 @@ function notfound(body) {
       body: [JSON.stringify(body)]
    };
 };
+
+exports.static = require("ringo/jsgi/response").static;
