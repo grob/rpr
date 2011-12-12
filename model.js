@@ -34,7 +34,8 @@ var RelPackageAuthor = store.defineEntity("RelPackageAuthor", {
         },
         "role": {
             "type": "string",
-            "column": "RPA_ROLE"
+            "column": "RPA_ROLE",
+            "length": 50
         }
     }
 });
@@ -66,10 +67,11 @@ var Package = store.defineEntity("Package", {
     "properties": {
         "name": {
             "type": "string",
-            "column": "PKG_NAME"
+            "column": "PKG_NAME",
+            "length": 255
         },
         "descriptor": {
-            "type": "string",
+            "type": "text",
             "column": "PKG_DESCRIPTOR"
         },
         "createtime": {
@@ -88,7 +90,7 @@ var Package = store.defineEntity("Package", {
         "latestVersion": {
             "type": "object",
             "entity": "Version",
-            "column": "PKG_F_VSN_LATEST",
+            "column": "PKG_F_VSN_LATEST"
         },
         "creator": {
             "type": "object",
@@ -208,27 +210,32 @@ var Version = store.defineEntity("Version", {
     "properties": {
         "version": {
             "type": "string",
-            "column": "VSN_VERSION"
+            "column": "VSN_VERSION",
+            "length": 30
         },
         "descriptor": {
-            "type": "string",
+            "type": "text",
             "column": "VSN_DESCRIPTOR"
         },
         "filename": {
             "type": "string",
-            "column": "VSN_FILENAME"
+            "column": "VSN_FILENAME",
+            "length": 100
         },
         "md5": {
             "type": "string",
-            "column": "VSN_MD5"
+            "column": "VSN_MD5",
+            "length": 100
         },
         "sha1": {
             "type": "string",
-            "column": "VSN_SHA1"
+            "column": "VSN_SHA1",
+            "length": 100
         },
         "sha256": {
             "type": "string",
-            "column": "VSN_SHA256"
+            "column": "VSN_SHA256",
+            "length": 100
         },
         "createtime": {
             "type": "timestamp",
@@ -334,19 +341,23 @@ var User = store.defineEntity("User", {
     "properties": {
         "name": {
             "type": "string",
-            "column": "USR_NAME"
+            "column": "USR_NAME",
+            "length": 100
         },
         "password": {
             "type": "string",
-            "column": "USR_PASSWORD"
+            "column": "USR_PASSWORD",
+            "length": 255
         },
         "salt": {
             "type": "string",
-            "column": "USR_SALT"
+            "column": "USR_SALT",
+            "length": 255
         },
         "email": {
             "type": "string",
-            "column": "USR_EMAIL"
+            "column": "USR_EMAIL",
+            "length": 100
         },
         "createtime": {
             "type": "timestamp",
@@ -387,15 +398,18 @@ var Author = store.defineEntity("Author", {
     "properties": {
         "name": {
             "type": "string",
-            "column": "AUT_NAME"
+            "column": "AUT_NAME",
+            "length": 100
         },
         "email": {
             "type": "string",
-            "column": "AUT_EMAIL"
+            "column": "AUT_EMAIL",
+            "length": 100
         },
         "web": {
             "type": "string",
-            "column": "AUT_WEB"
+            "column": "AUT_WEB",
+            "length": 255
         },
         "createtime": {
             "type": "timestamp",
