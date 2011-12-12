@@ -13,6 +13,15 @@ var app = exports.app = new Application();
 app.configure("etag", "requestlog", "error", "notfound", "params", "upload", "route");
 
 /**
+ * Returns the packages catalog
+ */
+app.get("/packages.json", function(request) {
+    return response.ok(Package.all().map(function(pkg) {
+        return pkg.serialize();
+    }));
+});
+
+/**
  * Package archive download route
  */
 app.get("/package/:pkgName", function(request, pkgName) {
@@ -27,12 +36,9 @@ app.get("/package/:pkgName", function(request, pkgName) {
     }
 });
 
-app.get("/packages.json", function(request) {
-    return response.ok(Package.all().map(function(pkg) {
-        return pkg.serialize();
-    }));
-});
-
+/**
+ * Returns the metadata of the package
+ */
 app.get("/packages/:pkgName", function(request, pkgName, versionStr) {
     var pkg = Package.getByName(pkgName);
     if (pkg != null) {
@@ -43,6 +49,9 @@ app.get("/packages/:pkgName", function(request, pkgName, versionStr) {
     });
 });
 
+/**
+ * Returns the metadata of a specific version of a package
+ */
 app.get("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     var pkg = Package.getByName(pkgName);
     if (pkg != null) {
@@ -57,8 +66,11 @@ app.get("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr)
     });
 });
 
-//FIXME: this should be a DELETE route (digest/basicauth needed)
-app.post("/packages/:pkgName/unpublish", function(request, pkgName) {
+/**
+ * Deletes a package
+ */
+app.del("/packages/:pkgName", function(request, pkgName) {
+    var [username, password] = utils.getCredentials(request);
     var pkg = Package.getByName(pkgName);
     if (pkg == null) {
         return response.notfound({
@@ -66,8 +78,7 @@ app.post("/packages/:pkgName/unpublish", function(request, pkgName) {
         });
     }
     try {
-        var user = registry.authenticate(request.postParams.username,
-                request.postParams.password);
+        var user = registry.authenticate(username, password);
         registry.unpublish(pkg, null, user);
         return response.ok({
             "message": "Package " + pkg.name + " has been removed"
@@ -80,8 +91,11 @@ app.post("/packages/:pkgName/unpublish", function(request, pkgName) {
     }
 });
 
-// FIXME: this should be a DELETE route (digest/basicauth needed)
-app.post("/packages/:pkgName/:versionStr/unpublish", function(request, pkgName, versionStr) {
+/**
+ * Deletes a specific version of the package
+ */
+app.del("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr) {
+    var [username, password] = utils.getCredentials(request);
     var pkg = Package.getByName(pkgName);
     if (pkg == null) {
         return response.notfound({
@@ -89,8 +103,7 @@ app.post("/packages/:pkgName/:versionStr/unpublish", function(request, pkgName, 
         });
     }
     try {
-        var user = registry.authenticate(request.postParams.username,
-                request.postParams.password);
+        var user = registry.authenticate(username, password);
         registry.unpublish(pkg, versionStr, user);
         return response.ok({
             "message": "Version " + versionStr + " of package " +
@@ -108,8 +121,7 @@ app.post("/packages/:pkgName/:versionStr/unpublish", function(request, pkgName, 
 });
 
 app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr) {
-    var username = request.postParams.username;
-    var password = request.postParams.password;
+    var [username, password] = utils.getCredentials(request);
     var force = request.postParams.force === "true";
     var descriptorJson = request.postParams.descriptor;
     var pkg = request.postParams.pkg;
@@ -144,6 +156,9 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
     return;
 });
 
+/**
+ * Returns true if a user with the given name exists
+ */
 app.get("/users/:username", function(request, username) {
     if (User.getByName(username) != null) {
         return response.ok(true);
@@ -151,6 +166,9 @@ app.get("/users/:username", function(request, username) {
     return response.notfound();
 });
 
+/**
+ * Returns the salt of the user
+ */
 app.get("/users/:username/salt", function(request, username) {
     var user = User.getByName(username);
     if (user != null) {
@@ -161,6 +179,9 @@ app.get("/users/:username/salt", function(request, username) {
     });
 });
 
+/**
+ * Creates a new user account
+ */
 app.post("/users/", function(request) {
     var props = {};
     // basic evaluation
@@ -184,11 +205,14 @@ app.post("/users/", function(request) {
     });
 });
 
-app.post("/users/:username/password", function(request, username) {
-    var oldPassword = request.postParams.oldPassword;
-    var newPassword = request.postParams.newPassword;
+/**
+ * Changes a user's password
+ */
+app.post("/password", function(request) {
+    var [username, password] = utils.getCredentials(request);
+    var newPassword = request.postParams.password;
     try {
-        var user = registry.authenticate(username, oldPassword);
+        var user = registry.authenticate(username, password);
         user.password = newPassword;
         user.save();
         return response.ok({

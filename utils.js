@@ -1,6 +1,7 @@
+var base64 = require('ringo/base64');
 var semver = require("ringo-semver");
 
-export("parseAuthor", "evalDescriptor", "normalizeDescriptor", "bytesToHex", "hexToBytes");
+export("parseAuthor", "evalDescriptor", "normalizeDescriptor", "bytesToHex", "hexToBytes", "getCredentials");
 
 var parseAuthor = function(str) {
     var result = {};
@@ -93,4 +94,8 @@ var hexToBytes = function(str) {
                              + java.lang.Character.digit(str.charAt(idx + 1), 16));
     }
     return data;
+};
+
+var getCredentials = function(request) {
+    return base64.decode(request.headers.authorization.replace(/^Basic /, '')).split(':');
 };
