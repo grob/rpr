@@ -2,46 +2,117 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
 }
+a {
+    color: #5a8b5a;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 .clearer {
     clear: left;
     float: none;
 }
 
 header {
-    padding: 10px;
+    padding: 10px 20px;
 }
 header h1 {
     font-size: 1.2em;
-    color: #666666;
-    text-shadow: 1px 1px 3px #bfbfbf;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #999;
+    text-shadow: 0px 1px 1px #99C82D;
+}
+header h1 .c1 {
+    color: #99C82D;
+}
+header h1 .c2 {
+    color: #666;
 }
 
 #main {
     margin: 20px;
 }
-#main ul {
+#main > ul {
     margin-top: 10px;
+    width: 60%;
 }
-#main ul li {
+#main > ul > li {
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #efefef;
+    border-bottom: 1px solid #edfced;
     font-size: 0.9em;
 }
-#main ul li h2 {
+#main > ul > li > h2 {
+    font-size: 1.1em;
     font-weight: bold;
+    margin-bottom: 3px;
 }
-#main ul li dl {
-    margin-top: 5px;
+#main > ul > li > p {
+    margin-bottom: 5px;
 }
-#main ul li dl dt {
+
+#search {
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 3px;
+    width: 300px;
+    margin-bottom: 10px;
+}
+
+/*** sections ***/
+ul.menu {
+    overflow: auto;
+}
+ul.menu li {
+    cursor: pointer;
+    color: #999;
+    float: left;
+    padding: 0 10px 2px 0;
+    border-style: solid;
+    border-width: 1px 1px 0 1px;
+    border-color: transparent;
+    border-radius: 3px 3px 0 0;
+}
+ul.menu li:before {
+    content: "\0025ba\0000a0";
+}
+ul.menu li.expanded {
+    color: #666;
+    border-color: #bbb;
+    background-color: white;
+}
+ul.menu li.expanded:before {
+    content: "\0025bc\0000a0";
+}
+dl {
+    margin-top: -1px;
+    margin-bottom: 5px;
+    display: none;
+    /*background-color: #e6f6e6;*/
+    overflow: auto;
+    padding: 5px;
+    border: 1px solid #bbb;
+}
+dl.expanded {
+    display: block;
+}
+dl dt {
     clear: left;
     float: left;
+    color: #999;
 }
-#main ul li dl dt:after {
+dl dt:after {
     content: ":";
 }
-#main ul li dl dd {
+dl dd {
     float: left;
-    margin-left: 10px;
+    margin: 0 0 2px 10px;
+}
+dl.versions dt {
+    color: black;
+    font-weight: bold;
+}
+dl.versions dt:after {
+    content: "";
 }

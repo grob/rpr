@@ -10,7 +10,6 @@ define(function(require, exports, module) {
         },
 
         "initialize": function() {
-            console.log("INIT main view", this.collection);
             this.collection.bind("reset", this.render, this);
             this.collection.fetch();
             return this;
@@ -29,7 +28,11 @@ define(function(require, exports, module) {
     };
 
     MainView.prototype.search = function(event) {
-        console.log("FETCH", this.collection.url);
-        this.collection.fetch();
+        this.collection.fetch({
+            "data": {
+                "q": $(event.target).val() || "",
+                "limit": 50
+            }
+        });
     };
 });

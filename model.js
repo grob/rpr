@@ -157,10 +157,8 @@ Package.getByName = function(name) {
 Package.prototype.serialize = function() {
     var result = this.serializeMin();
     result.versions = {};
-    result.modified = {};
     for each (let version in this.versions) {
         result.versions[version.version] = version.serializeMin();
-        result.modified[version.version] = dates.format(version.modifytime, DATEFORMAT);
     }
     return result;
 };
@@ -172,6 +170,7 @@ Package.prototype.serializeMin = function() {
         "description": descriptor.description,
         "keywords": descriptor.keywords,
         "latest": descriptor.version,
+        "modified": dates.format(this.latestVersion.modifytime, DATEFORMAT),
         "homepage": descriptor.homepage,
         "implements": descriptor.implements,
         "author": this.author && this.author.serialize() || undefined,
@@ -199,6 +198,11 @@ Package.prototype.isLatestVersion = function(version) {
 
 Package.prototype.equals = function(pkg) {
     return this._key.equals(pkg._key);
+};
+
+Package.search = function(query) {
+    // TODO
+    return Package.all();
 };
 
 var Version = store.defineEntity("Version", {
@@ -309,7 +313,8 @@ Version.prototype.serializeMin = function() {
             "sha1": this.sha1,
             "sha256": this.sha256
         },
-        "filename": this.filename
+        "filename": this.filename,
+        "modified": dates.format(this.modifytime, DATEFORMAT)
    };
 };
 
@@ -325,6 +330,7 @@ Version.prototype.serialize = function() {
         "sha256": this.sha256
     };
     result.filename = this.filename;
+    result.modified = dates.format(this.modifytime, DATEFORMAT);
     return result;
 };
 

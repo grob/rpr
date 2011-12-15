@@ -21,6 +21,13 @@ app.get("/packages.json", function(request) {
     }));
 });
 
+app.get("/search.json", function(request) {
+    var packages = Package.search(request.queryParams.q);
+    return response.ok(packages.map(function(pkg) {
+        return pkg.serialize();
+    }));
+});
+
 /**
  * Package archive download route
  */

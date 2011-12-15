@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/main.css" />
     <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/jquery.tmpl.js"></script>
+    <script type="text/javascript" src="js/lib/utils.js"></script>
     <script type="text/javascript" src="js/lib/underscore.js"></script>
     <script type="text/javascript" src="js/lib/backbone.js"></script>
     <script type="text/javascript" src="js/lib/backbone.mapping.js"></script>
@@ -25,7 +26,7 @@
 <body>
 
     <header>
-        <h1>RingoJS Package Repository</h1>
+        <h1><span class="c1">ringo</span><span class="c2">js</span> package registry</h1>
     </header>
 
     <div id="main">
@@ -36,19 +37,50 @@
     <script id="tmpl-package" type="text/html">
         <h2>${name} ${latest}</h2>
         <p>${description}</p>
-        <dl class="details">
+        <ul class="menu">
+            <li data-display=".details">Details</li>
+            <li data-display=".versions">Versions</li>
+        </ul>
+        <dl class="details clearer">
             {{if (keywords)}}
                 <dt>Keywords</dt>
                 <dd>${keywords.join(", ")}</dd>
             {{/if}}
             <dt>Author</dt>
-            <dd>${author.name}</dd>
+            <dd>
+                {{if (author.web)}}
+                    <a href="${author.web}">${author.name}</a>
+                {{else}}
+                    ${author.name}
+                {{/if}}
+            </dd>
             {{if (homepage)}}
                 <dt>Website</dt>
                 <dd><a href="${homepage}">${homepage}</a></dd>
             {{/if}}
             <dt>Last modified</dt>
-            <dd>${$data.modified[latest]}</dd>
+            <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
+            {{if (maintainers.length > 0)}}
+                <dt>Maintainers</dt>
+                <dd>
+                    <ul>
+                    {{each maintainers}}
+                    <li>{{if (web)}}
+                        <a href="${web}">${name}</a>
+                    {{else}}
+                        ${name}
+                    {{/if}}
+                    </li>
+                    {{/each}}
+                    </ul>
+                </dd>
+            {{/if}}
+        </dl>
+        <dl class="versions clearer">
+            {{each versions}}
+                <dt>${version}</dt>
+                <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
+            {{/each}}
         </dl>
         <div class="clearer"></div>
     </script>
