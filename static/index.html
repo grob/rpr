@@ -75,6 +75,21 @@
                     </ul>
                 </dd>
             {{/if}}
+            {{if (contributors.length > 0)}}
+                <dt>Contributors</dt>
+                <dd>
+                    <ul>
+                    {{each contributors}}
+                    <li>{{if (web)}}
+                        <a href="${web}">${name}</a>
+                    {{else}}
+                        ${name}
+                    {{/if}}
+                    </li>
+                    {{/each}}
+                    </ul>
+                </dd>
+            {{/if}}
         </dl>
         <dl class="versions clearer">
             {{each versions}}

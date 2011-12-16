@@ -18,3 +18,6 @@ exports.staticDir = module.resolve("../rpr/static/");
 
 // directory containing published package tarballs
 exports.packageDir = module.resolve("../rpr.static/packages/");
+
+// directory containing the lucene index
+exports.indexDir = module.resolve("../rpr.static/");

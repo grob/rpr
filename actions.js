@@ -7,6 +7,7 @@ var config = require("./config");
 var response = require("./response");
 var semver = require("ringo-semver");
 var registry = require("./registry");
+var index = require("./index");
 var utils = require("./utils");
 
 var app = exports.app = new Application();
@@ -22,9 +23,9 @@ app.get("/packages.json", function(request) {
 });
 
 app.get("/search.json", function(request) {
-    var packages = Package.search(request.queryParams.q);
-    return response.ok(packages.map(function(pkg) {
-        return pkg.serialize();
+    var ids = index.search(request.queryParams.q);
+    return response.ok(ids.map(function(id) {
+        return Package.get(id).serialize();
     }));
 });
 
@@ -230,4 +231,14 @@ app.post("/password", function(request) {
             "message": e.message
         });
     }
+});
+
+app.get("/_rebuildIndex", function(request) {
+    index.manager.removeAll();
+    Package.all().forEach(function(pkg) {
+        index.manager.add(index.createDocument(pkg));
+    });
+    return response.ok({
+        "message": "ok"
+    });
 });
