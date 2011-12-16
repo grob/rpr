@@ -60,10 +60,19 @@ exports.search = function(q) {
     }
     console.log("Query:", query);
     var topDocs = manager.searcher.search(query, null, 50);
-    var result = new Array(topDocs.totalHits);
-    for (var i=0; i<topDocs.totalHits; i+=1) {
-        var doc = manager.reader.document(topDocs.scoreDocs[i].doc);
-        result[i] = doc.getField("id").stringValue();
+    var result = [];
+    if (topDocs.totalHits > 0) {
+        var topScore = topDocs.getMaxScore();
+        for (var i=0; i<topDocs.totalHits; i+=1) {
+            var scoreDoc = topDocs.scoreDocs[i];
+            if (scoreDoc.score / topScore < 0.5) {
+                break;
+            }
+            var doc = manager.reader.document(scoreDoc.doc);
+            if (doc != null) {
+                result.push(doc.getField("id").stringValue());
+            }
+        }
     }
     return result;
 };
