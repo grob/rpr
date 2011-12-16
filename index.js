@@ -1,4 +1,3 @@
-var objects = require("ringo/utils/objects");
 var {indexDir} = require("./config");
 var {IndexManager} = require("indexmanager");
 var {Document, Field} = org.apache.lucene.document;
@@ -8,7 +7,7 @@ var {Analyzer, PerFieldAnalyzerWrapper, LowerCaseFilter} = org.apache.lucene.ana
 var {StandardAnalyzer, StandardTokenizer} = org.apache.lucene.analysis.standard;
 var {MatchAllDocsQuery} = org.apache.lucene.search;
 var {NGramTokenFilter} = org.apache.lucene.analysis.ngram;
-
+var {Float} = java.lang;
 
 var NGramAnalyzer = exports.NGramAnalyzer = function(minGram, maxGram) {
     return new Analyzer({
@@ -53,12 +52,15 @@ exports.search = function(q) {
     var query = null;
     if (typeof(q) === "string" && q.length > 0) {
         var parser = new MultiFieldQueryParser(Version.LUCENE_35,
-                 ["name", "name_ngrams", "description", "keyword", "author", "maintainer", "contributor"], analyzer);
+                 ["name", "name_ngrams", "description", "keyword", "author", "maintainer", "contributor"],
+                analyzer, {
+                    "name": Float.parseFloat(2),
+                    "keyword": Float.parseFloat(1.5)
+                });
         query = parser.parse(q || "");
     } else {
         query = new MatchAllDocsQuery();
     }
-    console.log("Query:", query);
     var topDocs = manager.searcher.search(query, null, 50);
     var result = [];
     if (topDocs.totalHits > 0) {
