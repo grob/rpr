@@ -7,6 +7,7 @@ var config = require("./config");
 var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
 var utils = require("./utils");
+var index = require("./index");
 
 export("authenticate", "publishPackage", "publishFile", "unpublish", "storeTemporaryFile", "createFileName");
 
@@ -115,6 +116,9 @@ function publishPackage(descriptor, filename, checksums, user, force) {
         storeAuthorRelations(pkg, pkg.contributors, contributors, "contributor");
         storeAuthorRelations(pkg, pkg.maintainers, maintainers, "maintainer");
 
+        // (re-)add to search index
+        index.manager.update("id", pkg._id, index.createDocument(pkg));
+
         store.commitTransaction();
     } catch (e) {
         log.info(e);
@@ -153,6 +157,8 @@ function unpublish(pkg, version, user) {
         // remove whole package if no version given
         if (version == undefined) {
             Package.remove(pkg);
+            // remove from search index
+            index.manager.remove("id", pkg._id);
         } else {
             try {
                 version = semver.cleanVersion(version);
@@ -165,8 +171,12 @@ function unpublish(pkg, version, user) {
             }
             if (pkg.versions.length === 1) {
                 Package.remove(pkg);
+                // remove from search index
+                index.manager.remove("id", pkg._id);
             } else {
                 Version.remove(pkg, pkgVersion);
+                // update search index
+                index.manager.update("id", pkg._id, index.createDocument(pkg));
             }
         }
         store.commitTransaction();
