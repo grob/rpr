@@ -12,7 +12,7 @@ define(function(require, exports, module) {
         "init": function(settings) {
             var mainView = new MainView({
                 "collection": new Packages()
-            });
+            }).render();
             Backbone.history.start();
         }
 

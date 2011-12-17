@@ -18,7 +18,7 @@ header {
     padding: 10px 20px;
 }
 header h1 {
-    font-size: 1.2em;
+    font-size: 1.4em;
     font-family: Arial, Helvetica, sans-serif;
     color: #999;
     text-shadow: 0px 1px 1px #99C82D;
@@ -52,12 +52,22 @@ header h1 .c2 {
     margin-bottom: 5px;
 }
 
-#search {
+.search {
+    overflow: auto;
+}
+.search input {
+    float: left;
     border: 1px solid #999;
     border-radius: 3px;
-    padding: 3px;
+    padding: 3px 30px 3px 3px;
     width: 300px;
     margin-bottom: 10px;
+    background-color: transparent;
+}
+.search .loader {
+    display: none;
+    float: left;
+    margin: 4px 0 0 -22px;
 }
 
 /*** sections ***/
