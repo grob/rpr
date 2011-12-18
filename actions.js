@@ -234,10 +234,7 @@ app.post("/password", function(request) {
 });
 
 app.get("/_rebuildIndex", function(request) {
-    index.manager.removeAll();
-    Package.all().forEach(function(pkg) {
-        index.manager.add(index.createDocument(pkg));
-    });
+    index.rebuild();
     return response.ok({
         "message": "ok"
     });

@@ -1,5 +1,6 @@
 var {indexDir} = require("./config");
 var {IndexManager} = require("indexmanager");
+var {Package} = require("./model");
 var {Document, Field} = org.apache.lucene.document;
 var {MultiFieldQueryParser} = org.apache.lucene.queryParser;
 var {Version} = org.apache.lucene.util;
@@ -28,7 +29,7 @@ var manager = exports.manager = module.singleton("index", function() {
     return IndexManager.createIndex(indexDir, "index", analyzer);
 });
 
-exports.createDocument = function(pkg) {
+var createDocument = exports.createDocument = function(pkg) {
     var doc = new Document();
     var descriptor = JSON.parse(pkg.latestVersion.descriptor);
     doc.add(new Field("id", pkg._id, Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO));
@@ -77,4 +78,20 @@ exports.search = function(q) {
         }
     }
     return result;
+};
+
+exports.rebuild = function() {
+    manager.removeAll();
+    var chunksize = 100;
+    var docs = [];
+    Package.all().forEach(function(pkg, idx) {
+        docs.push(createDocument(pkg));
+        if (idx > 0 && idx % chunksize === 0) {
+            manager.add(docs);
+            docs.length = 0;
+        }
+    });
+    if (docs.length > 0) {
+        manager.add(docs);
+    }
 };
