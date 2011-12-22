@@ -32,7 +32,7 @@ app.get("/search.json", function(request) {
 /**
  * Package archive download route
  */
-app.get("/package/:pkgName", function(request, pkgName) {
+app.get("/download/:pkgName", function(request, pkgName) {
     var repo = getRepository(config.packageDir);
     var archive = repo.getResource(pkgName);
     if (archive && archive.exists()) {
