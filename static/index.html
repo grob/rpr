@@ -96,7 +96,20 @@
         <dl class="versions clearer">
             {{each versions}}
                 <dt>${version}</dt>
-                <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
+                <dd>
+                    <dl>
+                        <dt>Published</dt>
+                        <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
+                        <dt>Filesize</dt>
+                        <dd>${rpr.utils.numbers.formatFileSize(filesize)}</dd>
+                        <dt>MD5 Checksum</dt>
+                        <dd>${checksums.md5}</dd>
+                        <dt>SHA1 Checksum</dt>
+                        <dd>${checksums.sha1}</dd>
+                        <dt>SHA256 Checksum</dt>
+                        <dd>${checksums.sha256}</dd>
+                    </dl>
+                </dd>
             {{/each}}
         </dl>
         <div class="clearer"></div>

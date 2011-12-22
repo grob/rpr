@@ -20,10 +20,7 @@ define(function(require, exports, module) {
 
     MainView.prototype.render = function() {
         $("#list", this.el).empty();
-        var q = $("#search").val();
-        if (q.length > 0) {
-            this.search(q);
-        }
+        this.search($("#search").val());
         return this;
     };
 
@@ -54,14 +51,12 @@ define(function(require, exports, module) {
 
     MainView.prototype.search = function(q, limit) {
         query = q;
-        if (q.length > 0) {
-            $("#loader", this.el).show();
-            this.collection.fetch({
-                "data": {
-                    "q": q || "",
-                    "limit": limit || 50
-                }
-            });
-        }
+        $("#loader", this.el).show();
+        this.collection.fetch({
+            "data": {
+                "q": q || "",
+                "limit": limit || 50
+            }
+        });
     }
 });

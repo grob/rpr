@@ -226,6 +226,10 @@ var Version = store.defineEntity("Version", {
             "column": "VSN_FILENAME",
             "length": 100
         },
+        "filesize": {
+            "type": "double",
+            "column": "VSN_FILESIZE"
+        },
         "md5": {
             "type": "string",
             "column": "VSN_MD5",
@@ -267,12 +271,13 @@ var Version = store.defineEntity("Version", {
     }
 });
 
-Version.create = function(pkg, descriptor, filename, checksums, creator) {
+Version.create = function(pkg, descriptor, filename, filesize, checksums, creator) {
     return new Version({
         "package": pkg,
         "version": descriptor.version,
         "descriptor": JSON.stringify(descriptor),
         "filename": filename,
+        "filesize": filesize,
         "md5": checksums.md5,
         "sha1": checksums.sha1,
         "sha256": checksums.sha256,
@@ -314,6 +319,7 @@ Version.prototype.serializeMin = function() {
             "sha256": this.sha256
         },
         "filename": this.filename,
+        "filesize": this.filesize,
         "modified": dates.format(this.modifytime, DATEFORMAT)
    };
 };

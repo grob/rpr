@@ -69,10 +69,10 @@ function storeTemporaryFile(bytes, filename) {
             }
         }
     }
-    return [path, checksums];
+    return [path, bytes.length, checksums];
 }
 
-function publishPackage(descriptor, filename, checksums, user, force) {
+function publishPackage(descriptor, filename, filesize, checksums, user, force) {
     var pkg = Package.getByName(descriptor.name);
     if (pkg != null && !pkg.isOwner(user)) {
         throw new Error("Only the original author of a package can publish a version");
@@ -93,12 +93,13 @@ function publishPackage(descriptor, filename, checksums, user, force) {
         // store/update version
         var version = pkg._id && pkg.getVersion(descriptor.version);
         if (!version) {
-            version = Version.create(pkg, descriptor, filename, checksums, user);
+            version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
             pkg.latestVersion = version;
             pkg.save();
         } else if (force) {
             version.descriptor = JSON.stringify(descriptor);
             version.filename = filename;
+            version.filesize = filesize;
             version.modifytime = new Date();
             version.save();
             // update package too, if this is the latest version

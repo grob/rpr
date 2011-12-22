@@ -140,10 +140,10 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
         utils.normalizeDescriptor(descriptor);
         utils.evalDescriptor(descriptor);
         // store package as temporary file
-        var [tmpFilePath, checksums] = registry.storeTemporaryFile(pkg.value, pkg.filename);
+        var [tmpFilePath, filesize, checksums] = registry.storeTemporaryFile(pkg.value, pkg.filename);
         var filename = registry.createFileName(tmpFilePath, descriptor.name, descriptor.version);
         // publish package
-        registry.publishPackage(descriptor, filename, checksums, user, force);
+        registry.publishPackage(descriptor, filename, filesize, checksums, user, force);
         // move file to final destination
         registry.publishFile(tmpFilePath, filename);
         return response.ok({
