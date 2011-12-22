@@ -156,9 +156,11 @@ function unpublish(pkg, version, user) {
         store.beginTransaction();
         // remove whole package if no version given
         if (version == undefined) {
-            Package.remove(pkg);
-            // remove from search index
+            // remove all archive files and the package itself
+            // including all versions from database and search index
+            removePackageArchive(pkg);
             index.manager.remove("id", pkg._id);
+            Package.remove(pkg);
         } else {
             try {
                 version = semver.cleanVersion(version);
@@ -170,10 +172,12 @@ function unpublish(pkg, version, user) {
                 throw new Error("Version " + version + " of package " + pkg.name + " does not exist");
             }
             if (pkg.versions.length === 1) {
+                removePackageArchive(pkg);
                 Package.remove(pkg);
                 // remove from search index
                 index.manager.remove("id", pkg._id);
             } else {
+                removeVersionArchive(pkgVersion);
                 Version.remove(pkg, pkgVersion);
                 // update search index
                 index.manager.update("id", pkg._id, index.createDocument(pkg));
@@ -184,6 +188,27 @@ function unpublish(pkg, version, user) {
     } catch (e) {
         store.abortTransaction();
         throw e;
+    }
+}
+
+function removeArchive(filename) {
+    var path = fs.join(config.packageDir, filename);
+    if (!fs.exists(path)) {
+        log.warn("Published package archive", path, "not found");
+    } else {
+        fs.remove(path);
+        log.info("Removed published package archive", path);
+    }
+    return;
+}
+
+function removeVersionArchive(version) {
+    removeArchive(version.filename);
+}
+
+function removePackageArchive(pkg) {
+    for each (var pkgVersion in pkg.versions) {
+        removeVersionArchive(pkgVersion);
     }
 }
 
