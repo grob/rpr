@@ -56,14 +56,14 @@ function storeTemporaryFile(bytes, filename) {
             "binary": true
         });
         md5Stream = new java.security.DigestOutputStream(fileOutStream, md5Digest);
-        sha1Stream = new java.security.DigestOutputStream(fileOutStream, md5Digest);
-        sha256Stream = new java.security.DigestOutputStream(fileOutStream, md5Digest);
-        byteStream.copy(fileOutStream);
+        sha1Stream = new java.security.DigestOutputStream(md5Stream, sha1Digest);
+        sha256Stream = new java.security.DigestOutputStream(sha1Stream, sha256Digest);
+        byteStream.copy(sha256Stream);
         checksums.md5 = utils.bytesToHex(md5Digest.digest());
         checksums.sha1 = utils.bytesToHex(sha1Digest.digest());
         checksums.sha256 = utils.bytesToHex(sha256Digest.digest());
     } finally {
-        for each (let stream in [byteStream, fileOutStream, md5Stream, sha1Stream, sha256Stream]) {
+        for each (let stream in [byteStream, sha256Stream]) {
             if (stream != null) {
                 stream.close();
             }
@@ -100,6 +100,9 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             version.descriptor = JSON.stringify(descriptor);
             version.filename = filename;
             version.filesize = filesize;
+            version.md5 = checksums.md5;
+            version.sha1 = checksums.sha1;
+            version.sha256 = checksums.sha256;
             version.modifytime = new Date();
             version.save();
             // update package too, if this is the latest version
