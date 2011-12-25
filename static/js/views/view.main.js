@@ -48,6 +48,6 @@ define(function(require, exports, module) {
 
     MainView.prototype.search = function(q, limit) {
         query = q;
-        this.listView.search(q, 3);
+        this.listView.search(q, 20);
     }
 });
