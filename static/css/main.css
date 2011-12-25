@@ -123,6 +123,6 @@ dl.versions > dt {
     color: black;
     font-weight: bold;
 }
-dl.versions dt:after {
+dl.versions > dt:after {
     content: "";
 }

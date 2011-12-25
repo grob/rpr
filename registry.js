@@ -28,8 +28,8 @@ function authenticate(username, password) {
  * Saves the file in the temporary directory defined in config.tmpDir and
  * returns the path of the file together with an object containing various
  * checksums
- * @returns An array containing the path to the temporary file and
- * an object containing various checksums
+ * @returns An array containing the path to the temporary file, it's size
+ * in bytes and an object containing various checksums
  * @type Array
  */
 function storeTemporaryFile(bytes, filename) {

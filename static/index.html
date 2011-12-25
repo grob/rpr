@@ -13,6 +13,7 @@
     <script type="text/javascript" src="js/lib/backbone.js"></script>
     <script type="text/javascript" src="js/lib/backbone.mapping.js"></script>
     <script type="text/javascript" src="js/lib/sea.js"></script>
+    <script type="text/javascript" src="js/lib/iso8601.min.js"></script>
     <script type="text/javascript">
         seajs.config({
            "base": "js"
@@ -100,16 +101,14 @@
                     <dl>
                         <dt>Published</dt>
                         <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
-                        <dt>Filesize</dt>
-                        <dd>${rpr.utils.numbers.formatFileSize(filesize)}</dd>
-                        <dt>MD5 Checksum</dt>
-                        <dd>${checksums.md5}</dd>
-                        <dt>SHA1 Checksum</dt>
-                        <dd>${checksums.sha1}</dd>
-                        <dt>SHA256 Checksum</dt>
-                        <dd>${checksums.sha256}</dd>
                         <dt>Download</dt>
-                        <dd><a href="/download/${filename}">${filename}</a></dd>
+                        <dd><a href="/download/${filename}">${filename}</a> (${rpr.utils.numbers.formatFileSize(filesize)})</dd>
+                        <dt>md5</dt>
+                        <dd>${checksums.md5}</dd>
+                        <dt>sha1</dt>
+                        <dd>${checksums.sha1}</dd>
+                        <dt>sha256</dt>
+                        <dd>${checksums.sha256}</dd>
                     </dl>
                 </dd>
             {{/each}}
