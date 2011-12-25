@@ -35,17 +35,22 @@ header h1 .c2 {
 }
 #result {
     margin-top: 10px;
-    width: 60%;
+    width: 80%;
 }
 #result > li {
     padding: 10px;
     border-top: 1px solid rgb(199, 232, 190);
     font-size: 0.9em;
+    cursor: pointer;
 }
 #result > li:first-child {
     border-top: none;
 }
 #result > li:hover {
+    box-shadow: 1px 1px 2px #a7b89E;
+    border-top-color: transparent;
+}
+#result > li.selected {
     box-shadow: 1px 1px 2px #a7b89E;
     background-color: #fafafa;
     border-top-color: transparent;
@@ -102,12 +107,13 @@ header h1 .c2 {
 /*** sections ***/
 ul.menu {
     overflow: auto;
+    margin-left: 10px;
 }
 ul.menu li {
     cursor: pointer;
     color: #999;
     float: left;
-    padding: 0 10px 2px 0;
+    padding: 2px 5px 2px 5px;
     border-style: solid;
     border-width: 1px 1px 0 1px;
     border-color: transparent;
@@ -119,19 +125,17 @@ ul.menu li:before {
 ul.menu li.expanded {
     color: #666;
     border-color: #bbb;
-    background-color: white;
+    background-color: #fafafa;
 }
 ul.menu li.expanded:before {
     content: "\0025bc\0000a0";
 }
 dl.versions, dl.details {
-    margin-top: -1px;
-    margin-bottom: 5px;
+    margin: -1px -10px 5px -10px;
     display: none;
-    /*background-color: #e6f6e6;*/
     overflow: auto;
-    padding: 5px;
-    border: 1px solid #bbb;
+    padding: 10px 10px 0 10px;
+    border-top: 1px solid #bbb;
 }
 dl.expanded {
     display: block;
