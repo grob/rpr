@@ -88,7 +88,7 @@ exports.rebuild = function() {
         docs.push(createDocument(pkg));
         if (idx > 0 && idx % chunksize === 0) {
             manager.add(docs);
-            docs.length = 0;
+            docs = [];
         }
     });
     if (docs.length > 0) {
