@@ -23,10 +23,8 @@ app.get("/packages.json", function(request) {
 });
 
 app.get("/search.json", function(request) {
-    var ids = index.search(request.queryParams.q);
-    return response.ok(ids.map(function(id) {
-        return Package.get(id).serialize();
-    }));
+    return response.ok(index.search(request.queryParams.q,
+            request.queryParams.l, request.queryParams.o));
 });
 
 /**

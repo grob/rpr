@@ -1,38 +1,35 @@
 define(function(require, exports, module) {
 
-    var PackageView = require("views/view.package").PackageView;
+    var ListView = require("views/view.list").ListView;
     var query = null;
     var timeoutId = null;
 
     var MainView = exports.MainView = Backbone.View.extend({
-       "el": "#main",
+        "el": "#main",
+        "$searchInput": $("#search", this.el),
 
         "events": {
             "keyup #search": "handleInput"
         },
 
         "initialize": function() {
-            this.collection.bind("reset", this.renderList, this);
+            this.listView = new ListView({
+                "collection": this.collection
+            });
+            this.collection.bind("fetching", this.onLoading, this);
+            this.collection.bind("fetched", this.onLoaded, this);
+            this.search(this.$searchInput.val());
             return this;
         }
 
     });
 
-    MainView.prototype.render = function() {
-        $("#list", this.el).empty();
-        this.search($("#search").val());
-        return this;
+    MainView.prototype.onLoading = function() {
+        this.$searchInput.addClass("active");
     };
 
-    MainView.prototype.renderList = function() {
-        $("#loader", this.el).hide();
-        var $list = $("#list", this.el).empty();
-        this.collection.each(function(package) {
-            var packageView = new PackageView({
-                "model": package
-            });
-            $list.append(packageView.render().el);
-        });
+    MainView.prototype.onLoaded = function() {
+        this.$searchInput.removeClass("active");
     };
 
     MainView.prototype.handleInput = function(event) {
@@ -51,12 +48,6 @@ define(function(require, exports, module) {
 
     MainView.prototype.search = function(q, limit) {
         query = q;
-        $("#loader", this.el).show();
-        this.collection.fetch({
-            "data": {
-                "q": q || "",
-                "limit": limit || 50
-            }
-        });
+        this.listView.search(q, 3);
     }
 });

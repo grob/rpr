@@ -31,10 +31,11 @@
     </header>
 
     <div id="main">
-        <div class="search">
-            <input type="text" id="search" placeholder="Search" /><img id="loader" class="loader" src="images/loader.gif" />
+        <input id="search" type="text" placeholder="Search" />
+        <div id="list">
+            <ul id="result"></ul>
+            <a id="loadmore" href="#">more&hellip;</a>
         </div>
-        <ul id="list"></ul>
     </div>
 
     <script id="tmpl-package" type="text/html">

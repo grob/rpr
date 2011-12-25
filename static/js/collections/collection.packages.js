@@ -4,11 +4,39 @@ define(function(require, exports, module) {
 
     var Packages = exports.Packages = Backbone.Collection.extend({
         "url": "/search.json",
-        "model": Package
+        "model": Package,
+        "initialize": function() {
+            this.total = 0;
+            this.offset = 0;
+        }
     });
 
-    Packages.prototype.parse = function(data) {
-        return _.map(data, function(pkgData) {
+    /**
+     * Overwriting fetch to fire custom events "fetching" and "fetched"
+     * @param options
+     */
+    Packages.prototype.fetch = function (options) {
+        typeof(options) != 'undefined' || (options = {});
+        this.trigger("fetching");
+        var success = options.success;
+        options.success = function(collection, response) {
+            collection.trigger("fetched");
+            if (success) {
+                success(collection, response);
+            }
+        };
+        return Backbone.Collection.prototype.fetch.call(this, options);
+    };
+
+    Packages.prototype.hasMore = function() {
+        return this.total > this.length;
+    };
+
+    Packages.prototype.parse = function(response) {
+        this.total = response.total;
+        this.offset = response.offset;
+        this.perPage = response.length;
+        return _.map(response.hits, function(pkgData) {
             return Package.prototype.parse.call(null, pkgData);
         });
     };

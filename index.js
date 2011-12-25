@@ -10,6 +10,8 @@ var {MatchAllDocsQuery} = org.apache.lucene.search;
 var {NGramTokenFilter} = org.apache.lucene.analysis.ngram;
 var {Float} = java.lang;
 
+const PAGE_SIZE = 20;
+
 var NGramAnalyzer = exports.NGramAnalyzer = function(minGram, maxGram) {
     return new Analyzer({
         "tokenStream": function(fieldName, reader) {
@@ -49,7 +51,7 @@ var createDocument = exports.createDocument = function(pkg) {
     return doc;
 };
 
-exports.search = function(q) {
+exports.search = function(q, length, offset) {
     var query = null;
     if (typeof(q) === "string" && q.length > 0) {
         var parser = new MultiFieldQueryParser(Version.LUCENE_35,
@@ -63,17 +65,25 @@ exports.search = function(q) {
         query = new MatchAllDocsQuery();
     }
     var topDocs = manager.searcher.search(query, null, 50);
-    var result = [];
+    var result = {
+        "offset": 0,
+        "length": 0,
+        "total": 0,
+        "hits": []
+    };
     if (topDocs.totalHits > 0) {
-        var topScore = topDocs.getMaxScore();
-        for (var i=0; i<topDocs.totalHits; i+=1) {
+        result.total = topDocs.totalHits;
+        var start = result.offset = Math.min(topDocs.totalHits, Math.max(0, offset || 0));
+        var end = Math.min(start + Math.max(0, length || PAGE_SIZE), topDocs.totalHits);
+        result.length = end - start;
+        for (var i=start; i<end; i+=1) {
             var scoreDoc = topDocs.scoreDocs[i];
-            if (scoreDoc.score / topScore < 0.5) {
-                break;
-            }
             var doc = manager.reader.document(scoreDoc.doc);
             if (doc != null) {
-                result.push(doc.getField("id").stringValue());
+                var pkg = Package.get(doc.getField("id").stringValue());
+                if (pkg != null) {
+                    result.hits.push(pkg.serialize());
+                }
             }
         }
     }
