@@ -156,10 +156,13 @@ Package.getByName = function(name) {
 
 Package.prototype.serialize = function() {
     var result = this.serializeMin();
-    result.versions = {};
-    for each (let version in this.versions) {
-        result.versions[version.version] = version.serializeMin();
-    }
+    // serialize versions and sort the by version number descending
+    var versionSorter = semver.getSorter(-1);
+    result.versions = this.versions.map(function(version) {
+        return version.serializeMin();
+    }).sort(function(v1, v2) {
+        return versionSorter(v1.version, v2.version);
+    });
     return result;
 };
 
