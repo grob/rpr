@@ -5,6 +5,7 @@ define(function(require, exports, module) {
         "template": "#tmpl-package",
         "events": {
             "click .menu li": "toggle",
+            "click .checksums": "toggleChecksums",
             "click": "toggleTabs"
         },
         "initialize": function() {
@@ -27,6 +28,12 @@ define(function(require, exports, module) {
         } else {
             $expanded.next().trigger("click");
         }
+        return false;
+    };
+
+    PackageView.prototype.toggleChecksums = function(event) {
+        var $toggler = $(event.target).toggleClass("expanded");
+        $toggler.next("dd.checksums").fadeToggle();
         return false;
     };
 

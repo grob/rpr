@@ -152,10 +152,31 @@ dl dd {
     float: left;
     margin: 0 0 2px 10px;
 }
+dl dd dl {
+    margin-bottom: 10px;
+}
 dl.versions > dt {
     color: black;
     font-weight: bold;
 }
 dl.versions > dt:after {
     content: "";
+}
+
+dl dt.checksums:before {
+    content: "\0025ba\0000a0";
+}
+dl dt.checksums.expanded {
+    color: #666666;
+}
+dl dt.checksums.expanded:before {
+    content: "\0025bc\0000a0";
+}
+dl dt.checksums:after {
+    content: "";
+}
+dl dd.checksums {
+    display: none;
+    overflow: auto;
+    margin: 2px 0 10px 20px;
 }

@@ -14,7 +14,7 @@ define(function(require, exports, module) {
     Package.prototype.parse = function(data) {
         data.versions = _.map(_.values(data.versions), function(data) {
             return Version.prototype.parse.call(null, data);
-        });
+        }).sort(Version.sorter);
         data.modified = new Date(Date.parse(data.modified));
         return data;
     };

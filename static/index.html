@@ -104,12 +104,17 @@
                         <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
                         <dt>Download</dt>
                         <dd><a href="/download/${filename}">${filename}</a> (${rpr.utils.numbers.formatFileSize(filesize)})</dd>
-                        <dt>md5</dt>
-                        <dd>${checksums.md5}</dd>
-                        <dt>sha1</dt>
-                        <dd>${checksums.sha1}</dd>
-                        <dt>sha256</dt>
-                        <dd>${checksums.sha256}</dd>
+                        <dt class="checksums clearer">Checksums</dt>
+                        <dd class="checksums clearer">
+                            <dl>
+                                <dt>md5</dt>
+                                <dd>${checksums.md5}</dd>
+                                <dt>sha1</dt>
+                                <dd>${checksums.sha1}</dd>
+                                <dt>sha256</dt>
+                                <dd>${checksums.sha256}</dd>
+                            </dl>
+                        </dd>
                     </dl>
                 </dd>
             {{/each}}

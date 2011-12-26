@@ -7,4 +7,13 @@ define(function(require, exports, module) {
         return data;
     };
 
+    Version.sorter = function(v1, v2) {
+        if (v1.version < v2.version) {
+            return 1;
+        } else if (v1.version > v2.version) {
+            return -1;
+        }
+        return 0;
+    };
+
 });
