@@ -23,8 +23,14 @@ app.get("/packages.json", function(request) {
 });
 
 app.get("/search.json", function(request) {
-    return response.ok(index.search(request.queryParams.q,
-            request.queryParams.l, request.queryParams.o));
+    try {
+        return response.ok(index.search(request.queryParams.q,
+                request.queryParams.l, request.queryParams.o));
+    } catch (e) {
+        return response.error({
+            "message": e.message
+        });
+    }
 });
 
 /**

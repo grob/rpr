@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>RingoJS Package Repository</title>
+    <title>RingoJS Package Registry</title>
     <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/main.css" />
     <script type="text/javascript" src="js/lib/jquery.js"></script>
@@ -48,7 +48,9 @@
         <dl class="details clearer">
             {{if (keywords)}}
                 <dt>Keywords</dt>
-                <dd>${keywords.join(", ")}</dd>
+                <dd>{{each keywords}}
+                        <a href="/#!/search/${$value}">${$value}</a>{{if ($index < keywords.length - 1)}}, {{/if}}
+                    {{/each}}</dd>
             {{/if}}
             <dt>Author</dt>
             <dd>

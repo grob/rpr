@@ -1,7 +1,6 @@
 define(function(require, exports, module) {
 
     var ListView = require("views/view.list").ListView;
-    var query = null;
     var timeoutId = null;
 
     var MainView = exports.MainView = Backbone.View.extend({
@@ -18,7 +17,7 @@ define(function(require, exports, module) {
             });
             this.collection.bind("fetching", this.onLoading, this);
             this.collection.bind("fetched", this.onLoaded, this);
-            this.search(this.$searchInput.val());
+            this.query = this.$searchInput.val();
             return this;
         }
 
@@ -33,12 +32,12 @@ define(function(require, exports, module) {
     };
 
     MainView.prototype.handleInput = function(event) {
-        var q = $(event.target).val();
+        var q = this.$searchInput.val();
         if (event.keyCode === 13) {
             // immediate search when pressing enter key
             window.clearTimeout(timeoutId);
-            this.search(q);
-        } else if (q != query) {
+            window.location.hash = "#!/search/" + q;
+        } else if (q != this.query) {
             window.clearTimeout(timeoutId);
             timeoutId = window.setTimeout($.proxy(function() {
                 this.search(q);
@@ -46,8 +45,20 @@ define(function(require, exports, module) {
         }
     };
 
+    MainView.prototype.setDocTitle = function() {
+        var docTitle = window.document.title;
+        docTitle = docTitle.split(":").slice(0, 1);
+        if (this.query.length > 0) {
+            docTitle.push("'" + this.query + "'");
+        }
+        window.document.title = docTitle.join(": ");
+    };
+
     MainView.prototype.search = function(q, limit) {
-        query = q;
-        this.listView.search(q, 20);
-    }
+        this.query = q || "";
+        this.$searchInput.val(q).focus();
+        this.setDocTitle();
+        this.listView.search(this.query, 20);
+    };
+
 });

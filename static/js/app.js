@@ -6,11 +6,12 @@ define(function(require, exports, module) {
     var App = exports.App = Backbone.Router.extend({
 
         "routes": {
-           "": "index"
+           "!/search/*q": "search",
+            "": "index"
         },
 
         "init": function(settings) {
-            var mainView = new MainView({
+            this.mainView = new MainView({
                 "collection": new Packages()
             }).render();
             Backbone.history.start();
@@ -19,7 +20,11 @@ define(function(require, exports, module) {
     });
 
     App.prototype.index = function() {
-        console.log("Route: INDEX");
-    }
+        this.mainView.search();
+    };
+
+    App.prototype.search = function(q) {
+        this.mainView.search(q);
+    };
 
 });

@@ -20,6 +20,9 @@ define(function(require, exports, module) {
     };
 
     PackageView.prototype.toggleTabs = function(event) {
+        if ($(event.target).is("a")) {
+            return true;
+        }
         var $expanded = $(".menu li.expanded", this.el);
         if ($expanded.length == 0) {
             $(".menu li:first-child", this.el).trigger("click");
