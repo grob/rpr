@@ -3,7 +3,7 @@ define(function(require, exports, module) {
     var Package = require("models/model.package").Package;
 
     var Packages = exports.Packages = Backbone.Collection.extend({
-        "url": "/search.json",
+        "url": "/search",
         "model": Package,
         "initialize": function() {
             this.total = 0;

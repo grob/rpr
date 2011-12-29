@@ -16,13 +16,13 @@ app.configure("etag", "requestlog", "error", "notfound", "params", "upload", "ro
 /**
  * Returns the packages catalog
  */
-app.get("/packages.json", function(request) {
+app.get("/packages", function(request) {
     return response.ok(Package.all().map(function(pkg) {
         return pkg.serialize();
     }));
 });
 
-app.get("/search.json", function(request) {
+app.get("/search", function(request) {
     try {
         return response.ok(index.search(request.queryParams.q,
                 request.queryParams.l, request.queryParams.o));
