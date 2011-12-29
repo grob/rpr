@@ -1,6 +1,7 @@
 define(function(require, exports, module) {
 
     var PackageView = require("views/view.package").PackageView;
+    var Package = require("models/model.package").Package;
 
     var ListView = exports.ListView = Backbone.View.extend({
         "el": "#list",
@@ -58,6 +59,17 @@ define(function(require, exports, module) {
         this.offset = 0;
         this.collection.fetch({
             "data": this.getUrlParameters()
+        });
+    };
+
+    ListView.prototype.single = function(name) {
+        var pkg = new Package();
+        pkg.fetch({
+            "url": "/packages/" + name + "/",
+            "success": $.proxy(function() {
+                this.collection.reset([pkg]);
+                this.collection.trigger("fetched");
+            }, this)
         });
     };
 

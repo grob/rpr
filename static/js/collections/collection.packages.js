@@ -18,6 +18,7 @@ define(function(require, exports, module) {
     Packages.prototype.fetch = function (options) {
         typeof(options) != 'undefined' || (options = {});
         this.trigger("fetching");
+        options = options || {};
         var success = options.success;
         options.success = function(collection, response) {
             collection.trigger("fetched");
@@ -30,6 +31,12 @@ define(function(require, exports, module) {
 
     Packages.prototype.hasMore = function() {
         return this.total > this.length;
+    };
+
+    Packages.prototype.reset = function(models, options) {
+        this.total = models.length;
+        this.offset = 0;
+        return Backbone.Collection.prototype.reset.apply(this, arguments);
     };
 
     Packages.prototype.parse = function(response) {

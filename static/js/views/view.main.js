@@ -56,9 +56,16 @@ define(function(require, exports, module) {
 
     MainView.prototype.search = function(q, limit) {
         this.query = q || "";
-        this.$searchInput.val(q).focus();
+        this.$searchInput.val(this.query).focus();
         this.setDocTitle();
         this.listView.search(this.query, 20);
+    };
+
+    MainView.prototype.single = function(name) {
+        this.query = name || "";
+        this.$searchInput.val("").blur();
+        this.setDocTitle();
+        this.listView.single(name);
     };
 
 });

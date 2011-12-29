@@ -6,6 +6,7 @@ define(function(require, exports, module) {
     var App = exports.App = Backbone.Router.extend({
 
         "routes": {
+           "!/packages/:name": "single",
            "!/search/*q": "search",
             "": "index"
         },
@@ -25,6 +26,10 @@ define(function(require, exports, module) {
 
     App.prototype.search = function(q) {
         this.mainView.search(q);
+    };
+
+    App.prototype.single = function(name) {
+        this.mainView.single(name);
     };
 
 });
