@@ -47,11 +47,11 @@ header h1 .c2 {
     border-top: none;
 }
 #result > li:hover {
-    box-shadow: -1px 1px 2px #a7b89E;
+    box-shadow: -1px 1px 2px #495766;
     border-top-color: transparent;
 }
 #result > li.selected {
-    box-shadow: -1px 1px 2px #495766;
+    box-shadow: -1px 1px 2px #7b8599;
     background-color: #f8faff;
     border-top-color: transparent;
 }
@@ -125,7 +125,7 @@ ul.menu li:before {
 ul.menu li.expanded {
     color: #505466;
     border-color: #6d7d8a;
-    background-color: #f8ffff;
+    background-color: #f8faff;
 }
 ul.menu li.expanded:before {
     content: "\0025bc\0000a0";

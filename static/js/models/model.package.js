@@ -8,9 +8,4 @@ define(function(require, exports, module) {
         }
     });
 
-    Package.prototype.parse = function(data) {
-        data.modified = new Date(Date.parse(data.modified));
-        return data;
-    };
-
 });

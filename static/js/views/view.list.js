@@ -22,7 +22,7 @@ define(function(require, exports, module) {
         this.$result.empty();
     };
 
-    ListView.prototype.onLoaded = function(event) {
+    ListView.prototype.onLoaded = function() {
         this.$loadmore.removeClass("active");
         var items = this.collection.rest(this.collection.offset).map(function(package) {
             var packageView = new PackageView({
@@ -63,12 +63,15 @@ define(function(require, exports, module) {
     };
 
     ListView.prototype.single = function(name) {
-        var pkg = new Package();
-        pkg.fetch({
+        (new Package()).fetch({
             "url": "/packages/" + name + "/",
-            "success": $.proxy(function() {
-                this.collection.reset([pkg]);
-                this.collection.trigger("fetched");
+            "success": $.proxy(function(model) {
+                var packageView = new PackageView({
+                    "model": model
+                });
+                $(packageView.render().el)
+                    .appendTo(this.$result.empty())
+                    .addClass("selected").triggerHandler("click");
             }, this)
         });
     };
