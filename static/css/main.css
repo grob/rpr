@@ -3,7 +3,7 @@ body {
     font-size: 16px;
 }
 a {
-    color: #5a8b5a;
+    color: #32739c;
     text-decoration: none;
 }
 a:hover {
@@ -20,14 +20,14 @@ header {
 header h1 {
     font-size: 1.4em;
     font-family: Arial, Helvetica, sans-serif;
-    color: #999;
-    text-shadow: 0px 1px 1px #99C82D;
+    color: #7b8599;
+    text-shadow: 0px 1px 1px #adbbd9;
 }
 header h1 .c1 {
-    color: #99C82D;
+    color: #2d7fc9;
 }
 header h1 .c2 {
-    color: #666;
+    color: #495766;
 }
 
 #main {
@@ -39,7 +39,7 @@ header h1 .c2 {
 }
 #result > li {
     padding: 10px;
-    border-top: 1px solid rgb(199, 232, 190);
+    border-top: 1px solid #c8e8ff;
     font-size: 0.9em;
     cursor: pointer;
 }
@@ -47,12 +47,12 @@ header h1 .c2 {
     border-top: none;
 }
 #result > li:hover {
-    box-shadow: 1px 1px 2px #a7b89E;
+    box-shadow: -1px 1px 2px #a7b89E;
     border-top-color: transparent;
 }
 #result > li.selected {
-    box-shadow: 1px 1px 2px #a7b89E;
-    background-color: #fafafa;
+    box-shadow: -1px 1px 2px #495766;
+    background-color: #f8faff;
     border-top-color: transparent;
 }
 #result > li.pageborder {
@@ -123,9 +123,9 @@ ul.menu li:before {
     content: "\0025ba\0000a0";
 }
 ul.menu li.expanded {
-    color: #666;
-    border-color: #bbb;
-    background-color: #fafafa;
+    color: #505466;
+    border-color: #6d7d8a;
+    background-color: #f8ffff;
 }
 ul.menu li.expanded:before {
     content: "\0025bc\0000a0";
@@ -135,7 +135,7 @@ dl.versions, dl.details {
     display: none;
     overflow: auto;
     padding: 10px 10px 0 10px;
-    border-top: 1px solid #bbb;
+    border-top: 1px solid #6d7d8a;
 }
 dl.expanded {
     display: block;

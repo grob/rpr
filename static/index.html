@@ -27,7 +27,7 @@
 <body>
 
     <header>
-        <h1><span class="c1">ringo</span><span class="c2">js</span> package registry</h1>
+        <a href="#"><h1><span class="c1">ringo</span><span class="c2">js</span> package registry</h1></a>
     </header>
 
     <div id="main">
@@ -65,7 +65,7 @@
                 <dd><a href="${homepage}">${homepage}</a></dd>
             {{/if}}
             <dt>Last modified</dt>
-            <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
+            <dd>${rpr.utils.dates.format(Date.parse(modified), "dd.MM.yyyy HH:mm")}</dd>
             {{if (maintainers.length > 0)}}
                 <dt>Maintainers</dt>
                 <dd>
@@ -103,7 +103,7 @@
                 <dd>
                     <dl>
                         <dt>Published</dt>
-                        <dd>${rpr.utils.dates.format(modified, "dd.MM.yyyy HH:mm")}</dd>
+                        <dd>${rpr.utils.dates.format(Date.parse(modified), "dd.MM.yyyy HH:mm")}</dd>
                         <dt>Download</dt>
                         <dd><a href="/download/${filename}">${filename}</a> (${rpr.utils.numbers.formatFileSize(filesize)})</dd>
                         <dt class="checksums clearer">Checksums</dt>
