@@ -12,17 +12,8 @@
     <script type="text/javascript" src="js/lib/underscore.js"></script>
     <script type="text/javascript" src="js/lib/backbone.js"></script>
     <script type="text/javascript" src="js/lib/backbone.mapping.js"></script>
-    <script type="text/javascript" src="js/lib/sea.js"></script>
     <script type="text/javascript" src="js/lib/iso8601.min.js"></script>
-    <script type="text/javascript">
-        seajs.config({
-           "base": "js"
-        });
-        seajs.use("app", function(module) {
-            var app = new module.App();
-            $(document).ready(app.init());
-        });
-    </script>
+    <script type="text/javascript" src="js/lib/require.js" data-main="js/init"></script>
 </head>
 <body>
 
