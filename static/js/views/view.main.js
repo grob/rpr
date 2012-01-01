@@ -37,11 +37,6 @@ define(function(require, exports, module) {
             // immediate search when pressing enter key
             window.clearTimeout(timeoutId);
             window.location.hash = "#!/search/" + q;
-        } else if (q != this.query) {
-            window.clearTimeout(timeoutId);
-            timeoutId = window.setTimeout($.proxy(function() {
-                this.search(q);
-            }, this), 500);
         }
     };
 
