@@ -9,7 +9,7 @@ define(function(require, exports, module) {
     var lambdas = {
         "formatDate": function() {
             return function(str, render) {
-                return dates.format(Date.parse(render(str)), "dd.MM.yyyy HH:mm");
+                return dates.format(dates.parse(render(str)), "dd.MM.yyyy HH:mm");
             }
         },
         "formatFileSize": function() {
