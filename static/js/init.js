@@ -1,10 +1,12 @@
 require.config({
-   "baseUrl": "js"
+    "baseUrl": "js/"
 });
 
-require(["lib/domReady", "app"], function(domReady, module) {
-    var app = new module.App();
+define(function(require, exports, module) {
+    var domReady = require("lib/domReady");
+    var App = require("app").App;
     domReady(function() {
-        app.init()
+        window.app = (new App()).init();
     });
 });
+

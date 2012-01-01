@@ -16,6 +16,7 @@ define(function(require, exports, module) {
                 "collection": new Packages()
             }).render();
             Backbone.history.start();
+            return this;
         }
 
     });
