@@ -1,8 +1,26 @@
 define(function(require, exports, module) {
 
+    var hogan = require("lib/hogan");
+
+    var dates = require("lib/utils/dates");
+    var numbers = require("lib/utils/numbers");
+
+    // lambdas needed for rendering the template
+    var lambdas = {
+        "formatDate": function() {
+            return function(str, render) {
+                return dates.format(Date.parse(render(str)), "dd.MM.yyyy HH:mm");
+            }
+        },
+        "formatFileSize": function() {
+            return function(bytes, render) {
+                return numbers.formatFileSize(render(bytes));
+            }
+        }
+    };
+
     var PackageView = exports.PackageView = Backbone.View.extend({
         "tagName": "li",
-        "template": "#tmpl-package",
         "events": {
             "click .menu li": "toggle",
             "click .checksums": "toggleChecksums",
@@ -10,12 +28,14 @@ define(function(require, exports, module) {
         },
         "initialize": function() {
             this.model.bind("change", this.render, this);
+            this.template = hogan.compile(document.getElementById("tmpl-package").innerHTML);
         }
 
     });
 
     PackageView.prototype.render = function() {
-        $(this.el).empty().append($(this.template).tmpl(this.model.toJSON()));
+        var ctx = _.extend(this.model.toJSON(), lambdas);
+        $(this.el).append(this.template.render(ctx));
         return this;
     };
 
