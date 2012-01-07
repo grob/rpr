@@ -22,6 +22,29 @@ app.get("/packages", function(request) {
     }));
 });
 
+/**
+ * Returns the packages that have been updated since the "date"
+ * request parameter
+ */
+app.get("/updates", function(request) {
+    var dateStr = request.headers["if-modified-since"];
+    if (dateStr != null) {
+        var sdf = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zz");
+        try {
+            var date = sdf.parse(dateStr);
+            var packages = Package.query().greater("modifytime", date).select();
+            return response.ok(packages.map(function(pkg) {
+                return pkg.serialize();
+            }));
+        } catch (e) {
+            return response.error({
+                "message": "Missing or invalid 'if-modified-since' header"
+            });
+        }
+    }
+    return response.notModified();
+});
+
 app.get("/search", function(request) {
     try {
         return response.ok(index.search(request.queryParams.q,
