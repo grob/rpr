@@ -35,6 +35,14 @@ define(function(require, exports, module) {
 
     PackageView.prototype.render = function() {
         var ctx = _.extend(this.model.toJSON(), lambdas);
+        if (ctx.dependencies != null) {
+            ctx.dependencies = _.map(_.keys(ctx.dependencies), function(key) {
+                return {
+                    "name": key,
+                    "version": ctx.dependencies[key]
+                };
+            });
+        }
         $(this.el).append(this.template.render(ctx));
         return this;
     };

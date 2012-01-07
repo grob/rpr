@@ -10,7 +10,7 @@
     <script type="text/javascript" src="js/lib/underscore.js"></script>
     <script type="text/javascript" src="js/lib/backbone.js"></script>
     <script type="text/javascript" src="js/lib/backbone.mapping.js"></script>
-    <script type="text/javascript" src="js/lib/require.js" data-main="js/init.built"></script>
+    <script type="text/javascript" src="js/lib/require.js" data-main="js/init.built.js"></script>
 </head>
 <body>
 
@@ -41,6 +41,17 @@
                 {{/keywords}}
             </dd>
             {{#author}}
+            <dt>Dependencies</dt>
+            <dd>
+                <ul>
+                {{#dependencies}}
+                    <li><a href="#!/packages/{{name}}">{{name}}</a> {{version}}</li>
+                {{/dependencies}}
+                {{^dependencies}}
+                    <li>none</li>
+                {{/dependencies}}
+                </ul>
+            </dd>
             <dt>Author</dt>
             <dd>
                 {{#web}}
