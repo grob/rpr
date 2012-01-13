@@ -1,7 +1,7 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var fs = require("fs");
-var {store, Package, Version, User, Author, RelPackageAuthor} = require("./model");
+var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry} = require("./model");
 var {mimeType} = require("ringo/mime");
 var config = require("./config");
 var response = require("./response");
@@ -32,10 +32,12 @@ app.get("/updates", function(request) {
         var sdf = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zz");
         try {
             var date = sdf.parse(dateStr);
-            var packages = Package.query().greater("modifytime", date).select();
-            return response.ok(packages.map(function(pkg) {
-                return pkg.serialize();
-            }));
+            return response.ok({
+                "updated": Package.getUpdatedSince(date).map(function(pkg) {
+                    return pkg.serialize();
+                }),
+                "removed": LogEntry.getRemovedPackages(date)
+            });
         } catch (e) {
             return response.error({
                 "message": "Missing or invalid 'if-modified-since' header"

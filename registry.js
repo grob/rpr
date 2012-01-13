@@ -2,7 +2,7 @@ var log = require("ringo/logging").getLogger(module.id);
 var fs = require("fs");
 var io = require("io");
 var strings = require("ringo/utils/strings");
-var {store, Package, Version, User, Author, RelPackageAuthor} = require("./model");
+var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry} = require("./model");
 var config = require("./config");
 var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
@@ -77,6 +77,7 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
     if (pkg != null && !pkg.isOwner(user)) {
         throw new Error("Only the original author of a package can publish a version");
     }
+    var logEntryType = LogEntry.TYPE_ADD;
     store.beginTransaction();
     try {
         // author (optional, using first contributor if not specified)
@@ -110,8 +111,8 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
                 pkg.descriptor = version.descriptor;
                 pkg.save();
             }
+            logEntryType = LogEntry.TYPE_UPDATE;
         } else {
-            store.abortTransaction();
             throw new Error("Version " + version.version + " of package " +
                     descriptor.name + " has already been published");
         }
@@ -119,6 +120,9 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
         // store relations between contributors/maintainers and the package
         storeAuthorRelations(pkg, pkg.contributors, contributors, "contributor");
         storeAuthorRelations(pkg, pkg.maintainers, maintainers, "maintainer");
+
+        // add a log entry
+        LogEntry.create(logEntryType, descriptor.name, descriptor.version, user).save();
 
         // (re-)add to search index
         index.manager.update("id", pkg._id, index.createDocument(pkg));
@@ -163,8 +167,10 @@ function unpublish(pkg, version, user) {
             // remove all archive files and the package itself
             // including all versions from database and search index
             removePackageArchive(pkg);
-            index.manager.remove("id", pkg._id);
             Package.remove(pkg);
+            // update search index and add a log entry
+            index.manager.remove("id", pkg._id);
+            LogEntry.create(LogEntry.TYPE_DELETE, pkg.name, null, user).save();
         } else {
             try {
                 version = semver.cleanVersion(version);
@@ -178,13 +184,16 @@ function unpublish(pkg, version, user) {
             if (pkg.versions.length === 1) {
                 removePackageArchive(pkg);
                 Package.remove(pkg);
-                // remove from search index
+                // remove from search index and add a log entry
                 index.manager.remove("id", pkg._id);
+                LogEntry.create(LogEntry.TYPE_DELETE, pkg.name, null, user).save();
             } else {
                 removeVersionArchive(pkgVersion);
                 Version.remove(pkg, pkgVersion);
-                // update search index
+                pkg.modifytime = new Date();
+                // update search index and add a log entry
                 index.manager.update("id", pkg._id, index.createDocument(pkg));
+                LogEntry.create(LogEntry.TYPE_DELETE, pkg.name, pkgVersion.version, user).save();
             }
         }
         store.commitTransaction();
