@@ -1,7 +1,7 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var fs = require("fs");
-var {store, Package, Version, User, Author, RelPackageAuthor} = require("./model");
+var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry} = require("./model");
 var {mimeType} = require("ringo/mime");
 var config = require("./config");
 var response = require("./response");
@@ -20,6 +20,31 @@ app.get("/packages", function(request) {
     return response.ok(Package.all().map(function(pkg) {
         return pkg.serialize();
     }));
+});
+
+/**
+ * Returns the packages that have been updated since the "date"
+ * request parameter
+ */
+app.get("/updates", function(request) {
+    var dateStr = request.headers["if-modified-since"];
+    if (dateStr != null) {
+        var sdf = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zz");
+        try {
+            var date = sdf.parse(dateStr);
+            return response.ok({
+                "updated": Package.getUpdatedSince(date).map(function(pkg) {
+                    return pkg.serialize();
+                }),
+                "removed": LogEntry.getRemovedPackages(date)
+            });
+        } catch (e) {
+            return response.error({
+                "message": "Missing or invalid 'if-modified-since' header"
+            });
+        }
+    }
+    return response.notModified();
 });
 
 app.get("/search", function(request) {
@@ -172,10 +197,7 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
  * Returns true if a user with the given name exists
  */
 app.get("/users/:username", function(request, username) {
-    if (User.getByName(username) != null) {
-        return response.ok(true);
-    }
-    return response.notfound();
+    return response.ok(User.getByName(username) != null);
 });
 
 /**
@@ -187,7 +209,7 @@ app.get("/users/:username/salt", function(request, username) {
         return response.ok(user.salt);
     }
     return response.error({
-        "message": "Unknown user " + username
+        "message": "Unknown user"
     });
 });
 

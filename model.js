@@ -4,7 +4,7 @@ var config = require('./config');
 var dates = require("ringo/utils/dates");
 var semver = require("ringo-semver");
 
-export("store", "Package", "Version", "User", "Author", "RelPackageAuthor");
+export("store", "Package", "Version", "User", "Author", "RelPackageAuthor", "LogEntry");
 
 var DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.S'Z'";
 
@@ -152,6 +152,10 @@ Package.remove = function(pkg) {
 
 Package.getByName = function(name) {
     return Package.query().equals("name", name).select()[0] || null;
+};
+
+Package.getUpdatedSince = function(date) {
+    return Package.query().greater("modifytime", date).select();
 };
 
 Package.prototype.serialize = function() {
@@ -460,4 +464,89 @@ Author.prototype.serialize = function() {
 
 Author.prototype.equals = function(author) {
     return this._key.equals(author._key);
+};
+
+
+var LogEntry = store.defineEntity("LogEntry", {
+    "table": "T_LOG",
+    "id": {
+        "column": "LOG_ID",
+        "sequence": "LOG_ID"
+    },
+    "properties": {
+        "type": {
+            "type": "integer",
+            "column": "LOG_TYPE",
+            "length": 2
+        },
+        "packagename": {
+            "type": "string",
+            "column": "LOG_PACKAGENAME",
+            "length": 255
+        },
+        "versionstr": {
+            "type": "string",
+            "column": "LOG_VERSION",
+            "length": 30
+        },
+        "user": {
+            "type": "object",
+            "entity": "User",
+            "column": "LOG_F_USR"
+        },
+        "createtime": {
+            "type": "timestamp",
+            "column": "LOG_CREATETIME"
+        }
+    }
+});
+
+LogEntry.TYPE_ADD = 1;
+LogEntry.TYPE_UPDATE = 2;
+LogEntry.TYPE_DELETE = 3;
+
+LogEntry.create = function(type, packagename, versionstr, user) {
+    return new LogEntry({
+        "type": type,
+        "packagename": packagename,
+        "versionstr": versionstr,
+        "user": user,
+        "createtime": new Date()
+    });
+};
+
+LogEntry.getByPackage = function(pkg) {
+    return LogEntry.query().equals("packagename", pkg.name).select();
+};
+
+LogEntry.getByTypeQuery = function(type/*, [type[, type]...] */) {
+    if (arguments.length > 1) {
+        var placeholders = Array.prototype.map.call(arguments, function(type, idx) {
+            return "$" + idx;
+        }).join(", ");
+        var types = Array.prototype.slice.call(arguments, 0);
+        return LogEntry.query().filter("type in (" + placeholders + ")", types);
+    }
+    return LogEntry.query().equals("type", type);
+};
+
+LogEntry.getByType = function(type /*, [type[, type]...] */) {
+    return LogEntry.getByTypeQuery.apply(null, arguments).select();
+};
+
+LogEntry.getEntriesSince = function(date /*, [type[, type]...] */) {
+    var query;
+    if (arguments.length > 1) {
+        query = LogEntry.getByTypeQuery.apply(null, Array.prototype.slice.call(arguments, 1));
+    } else {
+        query = LogEntry.query();
+    }
+    return query.greater("createtime", date).select();
+};
+
+LogEntry.getRemovedPackages = function(date) {
+    return LogEntry.getByTypeQuery(LogEntry.TYPE_DELETE)
+                .equals("versionstr", null)
+                .greater("createtime", date)
+                .distinct("packagename");
 };

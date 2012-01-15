@@ -42,4 +42,12 @@ exports.notfound = function(body) {
    };
 };
 
+exports.notModified = function() {
+    return {
+        status: 304,
+        headers: {},
+        body: []
+    };
+};
+
 exports.static = require("ringo/jsgi/response").static;
