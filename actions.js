@@ -197,10 +197,7 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
  * Returns true if a user with the given name exists
  */
 app.get("/users/:username", function(request, username) {
-    if (User.getByName(username) != null) {
-        return response.ok(true);
-    }
-    return response.notfound();
+    return response.ok(User.getByName(username) != null);
 });
 
 /**
@@ -212,7 +209,7 @@ app.get("/users/:username/salt", function(request, username) {
         return response.ok(user.salt);
     }
     return response.error({
-        "message": "Unknown user " + username
+        "message": "Unknown user"
     });
 });
 
