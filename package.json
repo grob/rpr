@@ -11,7 +11,8 @@
     "contributors": [],
     "dependencies": {
         "ringo-sqlstore": ">=0.1",
-        "stick": ">=0.1"
+        "stick": ">=0.1",
+        "ringo-semver": ">=0.1"
     },
     "implements": ["CommonJS/Packages/1.0"],
     "main": "main.js"
