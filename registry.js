@@ -9,17 +9,23 @@ var files = require("ringo/utils/files");
 var utils = require("./utils");
 var index = require("./index");
 
-export("authenticate", "publishPackage", "publishFile", "unpublish", "storeTemporaryFile", "createFileName");
+export("AuthenticationError", "authenticate", "publishPackage", "publishFile", "unpublish", "storeTemporaryFile", "createFileName");
+
+var AuthenticationError = function(message) {
+    this.name = "AuthenticationError";
+    this.message = message || "";
+};
+AuthenticationError.prototype = new Error();
 
 function authenticate(username, password) {
     var user = User.getByName(username);
     if (user == undefined) {
-        throw new Error("Unknown user " + username);
+        throw new AuthenticationError("Unknown user " + username);
     }
     var digest = strings.b64decode(user.password, "raw");
     var bytes = strings.b64decode(password, "raw");
     if (!java.util.Arrays.equals(digest, bytes)) {
-        throw new Error("Password incorrect");
+        throw new AuthenticationError("Password incorrect");
     }
     return user;
 }
@@ -75,7 +81,7 @@ function storeTemporaryFile(bytes, filename) {
 function publishPackage(descriptor, filename, filesize, checksums, user, force) {
     var pkg = Package.getByName(descriptor.name);
     if (pkg != null && !pkg.isOwner(user)) {
-        throw new Error("Only the original author of a package can publish a version");
+        throw new AuthenticationError("Only the original author of a package can publish a version");
     }
     var logEntryType = LogEntry.TYPE_ADD;
     store.beginTransaction();
@@ -158,7 +164,7 @@ function createFileName(tmpFilePath, pkgName, version) {
 
 function unpublish(pkg, version, user) {
     if (!pkg.isOwner(user)) {
-        throw new Error("Only the original publisher of a package can unpublish");
+        throw new AuthenticationError("Only the original publisher of a package can unpublish");
     }
     try {
         store.beginTransaction();

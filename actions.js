@@ -39,8 +39,8 @@ app.get("/updates", function(request) {
                 "removed": LogEntry.getRemovedPackages(date)
             });
         } catch (e) {
-            return response.error({
-                "message": "Missing or invalid 'if-modified-since' header"
+            return response.bad({
+                "message": "Invalid 'if-modified-since' header"
             });
         }
     }
@@ -120,6 +120,10 @@ app.del("/packages/:pkgName", function(request, pkgName) {
         return response.ok({
             "message": "Package " + pkg.name + " has been removed"
         });
+    } catch (e if e instanceof registry.AuthenticationError) {
+        return response.forbidden({
+            "message": e.message
+        });
     } catch (e) {
         log.error(e);
         return response.error({
@@ -146,15 +150,16 @@ app.del("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr)
             "message": "Version " + versionStr + " of package " +
                 pkg.name + " has been removed"
         });
+    } catch (e if e instanceof registry.AuthenticationError) {
+        return response.forbidden({
+            "message": e.message
+        });
     } catch (e) {
         log.error(e);
         return response.error({
             "message": e.message
         });
     }
-    return response.notfound({
-        "message": "Version " + versionStr + " of package '" + pkgName + "' not found"
-    });
 });
 
 app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr) {
@@ -179,6 +184,10 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
             "message": "The package " + descriptor.name + " (v" +
                 descriptor.version + ") has been published"
         });
+    } catch (e if e instanceof registry.AuthenticationError) {
+        return response.forbidden({
+            "message": e.message
+        });
     } catch (e) {
         log.error(e);
         return response.error({
@@ -197,7 +206,12 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
  * Returns true if a user with the given name exists
  */
 app.get("/users/:username", function(request, username) {
-    return response.ok(User.getByName(username) != null);
+    if (User.getByName(username) != null) {
+        return response.ok(true);
+    }
+    return response.notfound({
+        "message": "User '" + username + "' does not exist"
+    });
 });
 
 /**
@@ -208,7 +222,7 @@ app.get("/users/:username/salt", function(request, username) {
     if (user != null) {
         return response.ok(user.salt);
     }
-    return response.error({
+    return response.notfound({
         "message": "Unknown user"
     });
 });
@@ -251,6 +265,10 @@ app.post("/password", function(request) {
         user.save();
         return response.ok({
             "message": "Changed password"
+        });
+    } catch (e if e instanceof registry.AuthenticationError) {
+        return response.forbidden({
+            "message": e.message
         });
     } catch (e) {
         return response.error({

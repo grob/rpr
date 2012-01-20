@@ -50,4 +50,24 @@ exports.notModified = function() {
     };
 };
 
+exports.forbidden = function(body) {
+   return {
+       status: 403,
+       headers: {
+           "Content-Type": "application/json"
+       },
+       body: [JSON.stringify(body)]
+   };
+};
+
+exports.bad = function(body) {
+    return {
+        status: 400,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: [JSON.stringify(body)]
+    };
+}
+
 exports.static = require("ringo/jsgi/response").static;
