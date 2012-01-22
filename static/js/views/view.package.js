@@ -52,12 +52,10 @@ define(function(require, exports, module) {
             return true;
         }
         var $expanded = $(".menu li.expanded", this.el);
-        if ($expanded.length == 0) {
-            $(".menu li:first-child", this.el).trigger("click");
-        } else if ($expanded.length > 0 && $expanded.next().length < 1) {
+        if ($expanded.length > 0) {
             $expanded.trigger("click");
         } else {
-            $expanded.next().trigger("click");
+            $(".menu li:first", this.el).trigger("click");
         }
         return false;
     };
