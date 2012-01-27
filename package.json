@@ -1,8 +1,8 @@
 {
     "name": "rpr",
     "version": "0.1",
-    "description": "RingoJS Package registry application",
-    "keywords": ["ringo", "package", "packages", "manager", "registry", "rhino"],
+    "description": "A package registry application for RingoJS",
+    "keywords": ["package registry", "rp", "ringojs", "modules"],
     "author": {
         "name": "Robert Gaggl",
         "email": "robert@nomatic.org",
@@ -14,6 +14,10 @@
         "stick": ">=0.1",
         "ringo-semver": ">=0.1"
     },
+    "licences": [{
+        "type": "Apache License Version 2.0",
+        "url": "http://www.apache.org/licenses/"
+    }],
     "implements": ["CommonJS/Packages/1.0"],
     "main": "main.js"
 }

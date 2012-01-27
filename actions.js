@@ -277,6 +277,12 @@ app.post("/password", function(request) {
     }
 });
 
+app.get("/rp-latest.zip", function(request) {
+    var pkg = Package.getByName("rp");
+    var filename = pkg.latestVersion.filename;
+    return response.redirect("/download/" + filename);
+});
+
 app.get("/_rebuildIndex", function(request) {
     index.rebuild();
     return response.ok({
