@@ -4,7 +4,7 @@ var {Stream} = require("io");
 var {ZipFile} = require("ringo/zip");
 var term = require("ringo/term");
 
-var rpUrl = "http://localhost:8080/rp-latest.zip";
+var rpUrl = "http://rpr.nomatic.org/rp-latest.zip";
 
 var fail = function(message) {
     throw new Error(Array.prototype.join.call(arguments, " "));
