@@ -3,8 +3,11 @@ var {Store} = require("ringo-sqlstore");
 var config = require('./config');
 var dates = require("ringo/utils/dates");
 var semver = require("ringo-semver");
+var {ByteArray} = require("binary");
+var strings = require("ringo/utils/strings");
 
-export("store", "Package", "Version", "User", "Author", "RelPackageAuthor", "LogEntry");
+export("store", "Package", "Version", "User", "Author", "RelPackageAuthor",
+        "LogEntry", "ResetToken");
 
 var DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.S'Z'";
 
@@ -549,4 +552,59 @@ LogEntry.getRemovedPackages = function(date) {
                 .equals("versionstr", null)
                 .greater("createtime", date)
                 .distinct("packagename");
+};
+
+
+var ResetToken = store.defineEntity("ResetToken", {
+    "table": "T_TOKEN",
+    "id": {
+        "column": "TKN_ID",
+        "sequence": "TKN_ID"
+    },
+    "properties": {
+        "hash": {
+            "type": "string",
+            "column": "TKN_HASH",
+            "length": 255
+        },
+        "user": {
+            "type": "object",
+            "entity": "User",
+            "column": "TKN_F_USR"
+        },
+        "createtime": {
+            "type": "timestamp",
+            "column": "TKN_CREATETIME"
+        }
+    }
+});
+
+ResetToken.create = function(user) {
+    return new ResetToken({
+        "user": user,
+        "hash": ResetToken.createHash(),
+        "createtime": new Date()
+    });
+};
+
+ResetToken.createHash = function() {
+    var hash = new ByteArray(8);
+    var random = java.security.SecureRandom.getInstance("SHA1PRNG");
+    random.nextBytes(hash);
+    return strings.b64encode(hash);
+};
+
+ResetToken.getByUser = function(user) {
+    return ResetToken.query()
+                .equals("user", user)
+                .orderBy("createtime desc")
+                .select()[0] || null;
+};
+
+ResetToken.prototype.evaluate = function(user, tokenStr) {
+    console.log(this.hash);
+    var age = (new Date()).getTime() - this.createtime.getTime();
+    return age < 86400000 &&
+            user._id === this.user._id &&
+            this.hash === tokenStr;
 };

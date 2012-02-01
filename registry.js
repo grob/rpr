@@ -2,14 +2,18 @@ var log = require("ringo/logging").getLogger(module.id);
 var fs = require("fs");
 var io = require("io");
 var strings = require("ringo/utils/strings");
-var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry} = require("./model");
+var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry,
+    ResetToken} = require("./model");
 var config = require("./config");
 var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
 var utils = require("./utils");
 var index = require("./index");
+var mail = require("ringo-mail");
 
-export("AuthenticationError", "authenticate", "publishPackage", "publishFile", "unpublish", "storeTemporaryFile", "createFileName");
+export("AuthenticationError", "authenticate", "publishPackage",
+        "publishFile", "unpublish", "storeTemporaryFile", "createFileName",
+        "initPasswordReset", "resetPassword");
 
 var AuthenticationError = function(message) {
     this.name = "AuthenticationError";
@@ -277,4 +281,57 @@ function storeAuthorRelations(pkg, collection, authors, role) {
         log.info("Removed", author.name, "as", role, "from", pkg.name);
     })
     return;
+}
+
+function initPasswordReset(user, email) {
+    if (user.email != email) {
+        throw new AuthenticationError("Email address does not match");
+    }
+    store.beginTransaction();
+    var token;
+    try {
+        token = ResetToken.create(user);
+        token.save();
+        mail.send({
+            "host": config.smtp.host,
+            "port": config.smtp.port,
+            "encrypt": config.smtp.encrypt,
+            "from": config.email,
+            "to": user.name + " <" + user.email + ">",
+            "subject": "Your password reset request in RingoJS package registry",
+            "text": [
+                "Hello " + user.name + "!\n",
+                "You've requested to reset your password in the RingoJS package registry.\n",
+                "Please type 'rp password set' on the command line, and copy/paste the following token when asked for:\n",
+                token.hash,
+                "\nPlease note that your token will be valid for only 24 hours.",
+                "\nBest regards,",
+                "the RingoJS package registry maintainers"
+            ].join("\n")
+        });
+        store.commitTransaction();
+    } catch (e) {
+        store.abortTransaction();
+        throw e;
+    }
+}
+
+function resetPassword(user, tokenStr, password) {
+    var token = ResetToken.getByUser(user);
+    if (!token || !token.evaluate(user, tokenStr)) {
+        throw new AuthenticationError("Password reset token is invalid");
+    }
+    store.beginTransaction();
+    try {
+        user.password = password;
+        user.modifytime = new Date();
+        user.save();
+        // remove token since we're finished here
+        token.remove();
+        store.commitTransaction();
+    } catch (e) {
+        store.abortTransaction();
+        log.error(e);
+        throw e;
+    }
 }

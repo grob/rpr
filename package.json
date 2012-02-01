@@ -12,7 +12,8 @@
     "dependencies": {
         "ringo-sqlstore": ">=0.1",
         "stick": ">=0.1",
-        "ringo-semver": ">=0.1"
+        "ringo-semver": ">=0.1",
+        "ringo-mail": ">= 0.4"
     },
     "licences": [{
         "type": "Apache License Version 2.0",

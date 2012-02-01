@@ -228,6 +228,64 @@ app.get("/users/:username/salt", function(request, username) {
 });
 
 /**
+ * Initiates the reset of a user's password
+ */
+app.post("/users/:username/reset", function(request, username) {
+    var user = User.getByName(username);
+    var email = request.postParams.email;
+    if (user === null) {
+        return response.notfound({
+            "message": "Unknown user"
+        });
+    }
+    try {
+        registry.initPasswordReset(user, email);
+        return response.ok({
+            "message": "An email has been sent to " + email +
+                    ". Please follow the instructions therein to reset your password"
+        });
+    } catch (e if e instanceof registry.AuthenticationError) {
+        return response.forbidden({
+            "message": e.message
+        });
+    } catch (e) {
+        log.error(e);
+        return response.error({
+            "message": e.message
+        });
+    }
+});
+
+/**
+ * Sets a user's password
+ */
+app.post("/users/:username/password", function(request, username) {
+    var user = User.getByName(username);
+    var token = request.postParams.token;
+    var password = request.postParams.password;
+    if (user === null) {
+        return response.notfound({
+            "message": "Unknown user"
+        });
+    }
+    try {
+        registry.resetPassword(user, token, password);
+        return response.ok({
+            "message": "Your password has been reset"
+        });
+    } catch (e if e instanceof registry.AuthenticationError) {
+        return response.forbidden({
+            "message": e.message
+        });
+    } catch (e) {
+        log.error(e);
+        return response.error({
+            "message": e.message
+        });
+    }
+});
+
+/**
  * Creates a new user account
  */
 app.post("/users/", function(request) {
