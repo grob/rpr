@@ -5,14 +5,14 @@ define(function(require, exports, module) {
     var dates = require("lib/utils/dates");
     var numbers = require("lib/utils/numbers");
 
-    var convertDependencies = function(descriptor) {
-        if (!descriptor.dependencies) {
-            return;
+    var convertDependencies = function(deps) {
+        if (!deps) {
+            return deps;
         }
-        descriptor.dependencies = _.map(_.keys(descriptor.dependencies), function(key) {
+        return _.map(_.keys(deps), function(key) {
             return {
                 "name": key,
-                "version": descriptor.dependencies[key]
+                "version": deps[key]
             };
         });
     };
@@ -47,11 +47,13 @@ define(function(require, exports, module) {
 
     PackageView.prototype.render = function() {
         var ctx = _.extend(this.model.toJSON(), lambdas);
-        convertDependencies(ctx);
-        for (var i=0; i<ctx.versions.length; i+=1) {
-            convertDependencies(ctx.versions[i]);
-        }
-        if (ctx.engines != null && ctx.engines.ringojs != null) {
+        ctx.dependencies = convertDependencies(ctx.dependencies);
+        ctx.engines = convertDependencies(ctx.engines);
+        _.each(ctx.versions, function(version) {
+            version.dependencies = convertDependencies(version.dependencies);
+            version.engines = convertDependencies(version.engines);
+        });
+        if (ctx.engines != null) {
             ctx.ringoVersion = ctx.engines.ringojs;
         }
         $(this.el).append(this.template.render(ctx));

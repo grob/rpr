@@ -41,13 +41,19 @@
                 {{/keywords}}
             </dd>
             {{#author}}
-            <dt>RingoJS version</dt>
-            {{#engines.ringojs}}
-            <dd>{{engines.ringojs}}</dd>
-            {{/engines.ringojs}}
-            {{^engines.ringojs}}
-            <dd>all</dd>
-            {{/engines.ringojs}}
+            {{#engines}}
+                <dt>Engines</dt>
+                <dd>
+                    <ul>
+                    {{#engines}}
+                    <li>{{name}} ({{version}})</li>
+                    {{/engines}}
+                    </ul>
+                    {{^engines}}
+                    <li>unspecified</li>
+                    {{/engines}}
+                </dd>
+            {{/engines}}
             <dt>Dependencies</dt>
             <dd>
                 <ul>
@@ -129,13 +135,19 @@
                             {{/dependencies}}
                             </ul>
                         </dd>
-                        <dt>RingoJS version</dt>
-                        {{#engines.ringojs}}
-                        <dd>{{engines.ringojs}}</dd>
-                        {{/engines.ringojs}}
-                        {{^engines.ringojs}}
-                        <dd>all</dd>
-                        {{/engines.ringojs}}
+                        {{#engines}}
+                            <dt>Engines</dt>
+                            <dd>
+                                <ul>
+                                {{#engines}}
+                                <li>{{name}} ({{version}})</li>
+                                {{/engines}}
+                                </ul>
+                                {{^engines}}
+                                <li>unspecified</li>
+                                {{/engines}}
+                            </dd>
+                        {{/engines}}
                         <dt>Download</dt>
                         <dd><a href="/download/{{filename}}">{{filename}}</a> ({{#formatFileSize}}{{filesize}}{{/formatFileSize}})</dd>
                         <dt class="checksums clearer">Checksums</dt>
