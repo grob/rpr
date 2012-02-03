@@ -326,6 +326,7 @@ Version.prototype.serialize = function() {
         "implements": descriptor.implements,
         "author": (pkg.author && pkg.author.serialize()) || undefined,
         "repositories": descriptor.repositories || undefined,
+        "licenses": descriptor.licenses || undefined,
         "maintainers": pkg.maintainers.map(function(author) {
             return author.serialize();
         }),

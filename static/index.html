@@ -86,6 +86,16 @@
                     </ul>
                 </dd>
             {{/repositories}}
+            {{#licenses}}
+                <dt>Licenses</dt>
+                <dd>
+                    <ul>
+                    {{#licenses}}
+                    <li><a href="{{url}}">{{type}}</a></li>
+                    {{/licenses}}
+                    </ul>
+                </dd>
+            {{/licenses}}
             <dt>Last modified</dt>
             <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
             <dt>Maintainers</dt>
@@ -164,6 +174,16 @@
                                 </ul>
                             </dd>
                         {{/repositories}}
+                        {{#licenses}}
+                            <dt>Licenses</dt>
+                            <dd>
+                                <ul>
+                                {{#licenses}}
+                                <li><a href="{{url}}">{{type}}</a></li>
+                                {{/licenses}}
+                                </ul>
+                            </dd>
+                        {{/licenses}}
                         <dt class="checksums clearer">Checksums</dt>
                         <dd class="checksums clearer">
                             <dl>
