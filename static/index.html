@@ -49,9 +49,6 @@
                     <li>{{name}} ({{version}})</li>
                     {{/engines}}
                     </ul>
-                    {{^engines}}
-                    <li>unspecified</li>
-                    {{/engines}}
                 </dd>
             {{/engines}}
             <dt>Dependencies</dt>
@@ -79,6 +76,16 @@
                 <dt>Website</dt>
                 <dd><a href="{{homepage}}">{{homepage}}</a></dd>
             {{/homepage}}
+            {{#repositories}}
+                <dt>Repositories</dt>
+                <dd>
+                    <ul>
+                    {{#repositories}}
+                    <li>{{type}}: <a href="{{url}}{{path}}">{{url}}{{path}}</a></li>
+                    {{/repositories}}
+                    </ul>
+                </dd>
+            {{/repositories}}
             <dt>Last modified</dt>
             <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
             <dt>Maintainers</dt>
@@ -143,13 +150,20 @@
                                 <li>{{name}} ({{version}})</li>
                                 {{/engines}}
                                 </ul>
-                                {{^engines}}
-                                <li>unspecified</li>
-                                {{/engines}}
                             </dd>
                         {{/engines}}
                         <dt>Download</dt>
                         <dd><a href="/download/{{filename}}">{{filename}}</a> ({{#formatFileSize}}{{filesize}}{{/formatFileSize}})</dd>
+                        {{#repositories}}
+                            <dt>Repositories</dt>
+                            <dd>
+                                <ul>
+                                {{#repositories}}
+                                <li>{{type}}: <a href="{{url}}{{path}}">{{url}}{{path}}</a></li>
+                                {{/repositories}}
+                                </ul>
+                            </dd>
+                        {{/repositories}}
                         <dt class="checksums clearer">Checksums</dt>
                         <dd class="checksums clearer">
                             <dl>
