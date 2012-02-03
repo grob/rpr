@@ -5,6 +5,18 @@ define(function(require, exports, module) {
     var dates = require("lib/utils/dates");
     var numbers = require("lib/utils/numbers");
 
+    var convertDependencies = function(descriptor) {
+        if (!descriptor.dependencies) {
+            return;
+        }
+        descriptor.dependencies = _.map(_.keys(descriptor.dependencies), function(key) {
+            return {
+                "name": key,
+                "version": descriptor.dependencies[key]
+            };
+        });
+    };
+
     // lambdas needed for rendering the template
     var lambdas = {
         "formatDate": function() {
@@ -35,13 +47,12 @@ define(function(require, exports, module) {
 
     PackageView.prototype.render = function() {
         var ctx = _.extend(this.model.toJSON(), lambdas);
-        if (ctx.dependencies != null) {
-            ctx.dependencies = _.map(_.keys(ctx.dependencies), function(key) {
-                return {
-                    "name": key,
-                    "version": ctx.dependencies[key]
-                };
-            });
+        convertDependencies(ctx);
+        for (var i=0; i<ctx.versions.length; i+=1) {
+            convertDependencies(ctx.versions[i]);
+        }
+        if (ctx.engines != null && ctx.engines.ringojs != null) {
+            ctx.ringoVersion = ctx.engines.ringojs;
         }
         $(this.el).append(this.template.render(ctx));
         return this;

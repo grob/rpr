@@ -41,6 +41,13 @@
                 {{/keywords}}
             </dd>
             {{#author}}
+            <dt>RingoJS version</dt>
+            {{#engines.ringojs}}
+            <dd>{{engines.ringojs}}</dd>
+            {{/engines.ringojs}}
+            {{^engines.ringojs}}
+            <dd>all</dd>
+            {{/engines.ringojs}}
             <dt>Dependencies</dt>
             <dd>
                 <ul>
@@ -111,6 +118,24 @@
                     <dl>
                         <dt>Published</dt>
                         <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
+                        <dt>Dependencies</dt>
+                        <dd>
+                            <ul>
+                            {{#dependencies}}
+                                <li><a href="#!/packages/{{name}}">{{name}}</a> {{version}}</li>
+                            {{/dependencies}}
+                            {{^dependencies}}
+                                <li>none</li>
+                            {{/dependencies}}
+                            </ul>
+                        </dd>
+                        <dt>RingoJS version</dt>
+                        {{#engines.ringojs}}
+                        <dd>{{engines.ringojs}}</dd>
+                        {{/engines.ringojs}}
+                        {{^engines.ringojs}}
+                        <dd>all</dd>
+                        {{/engines.ringojs}}
                         <dt>Download</dt>
                         <dd><a href="/download/{{filename}}">{{filename}}</a> ({{#formatFileSize}}{{filesize}}{{/formatFileSize}})</dd>
                         <dt class="checksums clearer">Checksums</dt>
@@ -131,5 +156,7 @@
         <div class="clearer"></div>
     </script>
 
+    <script id="tmpl-version" type="text/html">
+    </script>
 </body>
 </html>

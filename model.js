@@ -162,7 +162,7 @@ Package.getUpdatedSince = function(date) {
 };
 
 Package.prototype.serialize = function() {
-    var result = this.serializeMin();
+    var result = this.latestVersion.serialize();
     // serialize versions and sort the by version number descending
     var versionSorter = semver.getSorter(-1);
     result.versions = this.versions.map(function(version) {
@@ -171,27 +171,6 @@ Package.prototype.serialize = function() {
         return versionSorter(v1.version, v2.version);
     });
     return result;
-};
-
-Package.prototype.serializeMin = function() {
-    var descriptor = JSON.parse(this.latestVersion.descriptor);
-    return {
-        "name": this.name,
-        "description": descriptor.description,
-        "keywords": descriptor.keywords,
-        "latest": descriptor.version,
-        "modified": dates.format(this.latestVersion.modifytime, DATEFORMAT),
-        "homepage": descriptor.homepage,
-        "implements": descriptor.implements,
-        "author": this.author && this.author.serialize() || undefined,
-        "maintainers": this.maintainers.map(function(author) {
-            return author.serialize();
-        }),
-        "contributors": this.contributors.map(function(author) {
-            return author.serialize();
-        }),
-        "dependencies": descriptor.dependencies || undefined
-    }
 };
 
 Package.prototype.getVersion = function(version) {
@@ -208,11 +187,6 @@ Package.prototype.isLatestVersion = function(version) {
 
 Package.prototype.equals = function(pkg) {
     return this._key.equals(pkg._key);
-};
-
-Package.search = function(query) {
-    // TODO
-    return Package.all();
 };
 
 var Version = store.defineEntity("Version", {
@@ -320,9 +294,12 @@ Version.getByPackage = function(pkg) {
 };
 
 Version.prototype.serializeMin = function() {
+    var descriptor = JSON.parse(this.descriptor);
     return {
         "name": this.package.name,
         "version": this.version,
+        "dependencies": descriptor.dependencies || undefined,
+        "engines": descriptor.engines || undefined,
         "checksums": {
             "md5": this.md5,
             "sha1": this.sha1,
@@ -335,19 +312,33 @@ Version.prototype.serializeMin = function() {
 };
 
 Version.prototype.serialize = function() {
-    var result = this.package.serializeMin();
-    // add version specifics to result
     var descriptor = JSON.parse(this.descriptor);
-    result.version = this.version;
-    result.dependencies = descriptor.dependencies || {};
-    result.checksums = {
-        "md5": this.md5,
-        "sha1": this.sha1,
-        "sha256": this.sha256
+    var pkg = this.package;
+    return {
+        "name": this.package.name,
+        "version": this.version,
+        "description": descriptor.description,
+        "keywords": descriptor.keywords,
+        "latest": pkg.latestVersion.version,
+        "filename": this.filename,
+        "modified": dates.format(this.modifytime, DATEFORMAT),
+        "homepage": descriptor.homepage,
+        "implements": descriptor.implements,
+        "author": (pkg.author && pkg.author.serialize()) || undefined,
+        "maintainers": pkg.maintainers.map(function(author) {
+            return author.serialize();
+        }),
+        "contributors": pkg.contributors.map(function(author) {
+            return author.serialize();
+        }),
+        "dependencies": descriptor.dependencies || {},
+        "engines": descriptor.engines || undefined,
+        "checksums": {
+            "md5": this.md5,
+            "sha1": this.sha1,
+            "sha256": this.sha256
+        }
     };
-    result.filename = this.filename;
-    result.modified = dates.format(this.modifytime, DATEFORMAT);
-    return result;
 };
 
 Version.prototype.equals = function(version) {
