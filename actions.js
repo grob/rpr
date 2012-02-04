@@ -11,7 +11,7 @@ var index = require("./index");
 var utils = require("./utils");
 
 var app = exports.app = new Application();
-app.configure("etag", "requestlog", "error", "notfound", "params", "upload", "route");
+app.configure("gzip", "etag", "requestlog", "error", "notfound", "params", "upload", "route");
 
 /**
  * Returns the packages catalog
