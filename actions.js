@@ -66,11 +66,24 @@ app.get("/download/:pkgName", function(request, pkgName) {
     var archive = repo.getResource(pkgName);
     if (archive && archive.exists()) {
         return response.static(archive, mimeType(pkgName));
-    } else {
-        return response.notfound({
-            "message": "Package '" + pkgName + "' does not exist"
-        });
     }
+    return response.notfound({
+        "message": "Package '" + pkgName + "' does not exist"
+    });
+});
+
+/**
+ * Download the latest version of a package
+ */
+app.get("/download/:pkgName/latest", function(request, pkgName) {
+    var pkg = Package.getByName(pkgName);
+    if (pkg !== null) {
+        var filename = pkg.latestVersion.filename;
+        return response.redirect("/download/" + filename);
+    }
+    return response.notfound({
+        "message": "Package '" + pkgName + "' does not exist"
+    });
 });
 
 /**
@@ -333,12 +346,6 @@ app.post("/password", function(request) {
             "message": e.message
         });
     }
-});
-
-app.get("/rp-latest.zip", function(request) {
-    var pkg = Package.getByName("rp");
-    var filename = pkg.latestVersion.filename;
-    return response.redirect("/download/" + filename);
 });
 
 app.get("/_rebuildIndex", function(request) {
