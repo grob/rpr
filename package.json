@@ -1,8 +1,9 @@
 {
     "name": "rpr",
-    "version": "0.1",
+    "version": "0.2",
     "description": "A package registry application for RingoJS",
     "keywords": ["package registry", "rp", "ringojs", "modules"],
+    "homepage": "https://github.com/grob/rpr/",
     "author": {
         "name": "Robert Gaggl",
         "email": "robert@nomatic.org",
@@ -15,10 +16,18 @@
         "ringo-semver": ">=0.1",
         "ringo-mail": ">= 0.4"
     },
+    "repositories": [{
+        "type": "git",
+        "url": "https://github.com/grob/rpr.git"
+    }],
+    "bugs": "http://github.com/grob/rpr/issues",
     "licences": [{
         "type": "Apache License Version 2.0",
-        "url": "http://www.apache.org/licenses/"
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
     }],
+    "engines": {
+        "ringojs": ">=0.8"
+    },
     "implements": ["CommonJS/Packages/1.0"],
     "main": "main.js"
 }
