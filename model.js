@@ -9,8 +9,6 @@ var strings = require("ringo/utils/strings");
 export("store", "Package", "Version", "User", "Author", "RelPackageAuthor",
         "LogEntry", "ResetToken");
 
-var DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.S'Z'";
-
 /**
  * create store
  */
@@ -307,7 +305,7 @@ Version.prototype.serializeMin = function() {
         },
         "filename": this.filename,
         "filesize": this.filesize,
-        "modified": dates.format(this.modifytime, DATEFORMAT)
+        "modified": this.modifytime.toISOString()
    };
 };
 
@@ -321,7 +319,7 @@ Version.prototype.serialize = function() {
         "keywords": descriptor.keywords,
         "latest": pkg.latestVersion.version,
         "filename": this.filename,
-        "modified": dates.format(this.modifytime, DATEFORMAT),
+        "modified": this.modifytime.toISOString(),
         "homepage": descriptor.homepage,
         "implements": descriptor.implements,
         "author": (pkg.author && pkg.author.serialize()) || undefined,
