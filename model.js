@@ -609,7 +609,6 @@ ResetToken.getByUser = function(user) {
 };
 
 ResetToken.prototype.evaluate = function(user, tokenStr) {
-    console.log(this.hash);
     var age = (new Date()).getTime() - this.createtime.getTime();
     return age < 86400000 &&
             user._id === this.user._id &&
