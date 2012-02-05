@@ -11,7 +11,7 @@
     },
     "contributors": [],
     "dependencies": {
-        "ringo-sqlstore": ">=0.1",
+        "ringo-sqlstore": ">=0.1.1",
         "stick": ">=0.1",
         "ringo-semver": ">=0.1",
         "ringo-mail": ">= 0.4"
@@ -21,12 +21,12 @@
         "url": "https://github.com/grob/rpr.git"
     }],
     "bugs": "http://github.com/grob/rpr/issues",
-    "licences": [{
+    "licenses": [{
         "type": "Apache License Version 2.0",
         "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
     }],
     "engines": {
-        "ringojs": ">=0.8"
+        "ringojs": ">= 0.8"
     },
     "implements": ["CommonJS/Packages/1.0"],
     "main": "main.js"

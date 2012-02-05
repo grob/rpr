@@ -106,7 +106,6 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
         if (!version) {
             version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
             pkg.latestVersion = version;
-            pkg.save();
         } else if (force) {
             version.descriptor = JSON.stringify(descriptor);
             version.filename = filename;
@@ -114,18 +113,19 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             version.md5 = checksums.md5;
             version.sha1 = checksums.sha1;
             version.sha256 = checksums.sha256;
-            version.modifytime = new Date();
+            version.touch();
             version.save();
             // update package too, if this is the latest version
             if (pkg.isLatestVersion(version)) {
                 pkg.descriptor = version.descriptor;
-                pkg.save();
             }
             logEntryType = LogEntry.TYPE_UPDATE;
         } else {
             throw new Error("Version " + version.version + " of package " +
                     descriptor.name + " has already been published");
         }
+        pkg.touch();
+        pkg.save();
 
         // store relations between contributors/maintainers and the package
         storeAuthorRelations(pkg, pkg.contributors, contributors, "contributor");
@@ -170,8 +170,8 @@ function unpublish(pkg, version, user) {
     if (!pkg.isOwner(user)) {
         throw new AuthenticationError("Only the original publisher of a package can unpublish");
     }
+    store.beginTransaction();
     try {
-        store.beginTransaction();
         // remove whole package if no version given
         if (version == undefined) {
             // remove all archive files and the package itself
@@ -200,7 +200,8 @@ function unpublish(pkg, version, user) {
             } else {
                 removeVersionArchive(pkgVersion);
                 Version.remove(pkg, pkgVersion);
-                pkg.modifytime = new Date();
+                pkg.touch();
+                pkg.save();
                 // update search index and add a log entry
                 index.manager.update("id", pkg._id, index.createDocument(pkg));
                 LogEntry.create(LogEntry.TYPE_DELETE, pkg.name, pkgVersion.version, user).save();
@@ -324,7 +325,7 @@ function resetPassword(user, tokenStr, password) {
     store.beginTransaction();
     try {
         user.password = password;
-        user.modifytime = new Date();
+        user.touch();
         user.save();
         // remove token since we're finished here
         token.remove();

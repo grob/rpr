@@ -32,12 +32,16 @@ app.get("/updates", function(request) {
         var sdf = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zz");
         try {
             var date = sdf.parse(dateStr);
-            return response.ok({
-                "updated": Package.getUpdatedSince(date).map(function(pkg) {
-                    return pkg.serialize();
-                }),
-                "removed": LogEntry.getRemovedPackages(date)
+            var updated = Package.getUpdatedSince(date).map(function(pkg) {
+                return pkg.serialize();
             });
+            var removed = LogEntry.getRemovedPackages(date);
+            if (updated.length > 0 || removed.length > 0) {
+                return response.ok({
+                    "updated": updated,
+                    "removed": removed
+                });
+            }
         } catch (e) {
             return response.bad({
                 "message": "Invalid 'if-modified-since' header"

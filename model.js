@@ -159,8 +159,14 @@ Package.getUpdatedSince = function(date) {
     return Package.query().greater("modifytime", date).select();
 };
 
+Package.prototype.touch = function() {
+    this.modifytime = new Date();
+    return;
+};
+
 Package.prototype.serialize = function() {
     var result = this.latestVersion.serialize();
+    result.modified = this.modifytime.toISOString();
     // serialize versions and sort the by version number descending
     var versionSorter = semver.getSorter(-1);
     result.versions = this.versions.map(function(version) {
@@ -291,6 +297,11 @@ Version.getByPackage = function(pkg) {
     return Version.query().equals("package", pkg).select() || null;
 };
 
+Version.prototype.touch = function() {
+    this.modifytime = new Date();
+    return;
+};
+
 Version.prototype.serializeMin = function() {
     var descriptor = JSON.parse(this.descriptor);
     return {
@@ -396,6 +407,11 @@ User.create = function(username, password, salt, email) {
 
 User.getByName = function(name) {
     return User.query().equals("name", name).select()[0] || null;
+};
+
+User.prototype.touch = function() {
+    this.modifytime = new Date();
+    return;
 };
 
 User.prototype.equals = function(user) {
