@@ -59,27 +59,30 @@ app.get("/search", function(request) {
 });
 
 /**
- * Package archive download route
+ * Download a .zip archive
  */
-app.get("/download/:pkgName", function(request, pkgName) {
+app.get("/download/:filename", function(request, filename) {
     var repo = getRepository(config.packageDir);
-    var archive = repo.getResource(pkgName);
+    var archive = repo.getResource(filename);
     if (archive && archive.exists()) {
-        return response.static(archive, mimeType(pkgName));
+        return response.static(archive, mimeType(filename));
     }
     return response.notfound({
-        "message": "Package '" + pkgName + "' does not exist"
+        "message": "Package archive '" + filename + "' does not exist"
     });
 });
 
 /**
- * Download the latest version of a package
+ * Download a package's .zip archive
  */
-app.get("/download/:pkgName/latest", function(request, pkgName) {
+app.get("/download/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     var pkg = Package.getByName(pkgName);
     if (pkg !== null) {
-        var filename = pkg.latestVersion.filename;
-        return response.redirect("/download/" + filename);
+        var version = (versionStr === "latest") ? pkg.latestVersion :
+                pkg.getVersion(semver.cleanVersion(versionStr));
+        if (version != null) {
+            return response.redirect("/download/" + version.filename);
+        }
     }
     return response.notfound({
         "message": "Package '" + pkgName + "' does not exist"
