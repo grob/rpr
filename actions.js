@@ -23,8 +23,8 @@ app.get("/packages", function(request) {
 });
 
 /**
- * Returns the packages that have been updated since the "date"
- * request parameter
+ * Returns the packages that have been added/updated/removed since
+ * the date in the "if-modified-since" header field
  */
 app.get("/updates", function(request) {
     var dateStr = request.headers["if-modified-since"];

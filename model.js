@@ -170,7 +170,7 @@ Package.prototype.serialize = function() {
     // serialize versions and sort the by version number descending
     var versionSorter = semver.getSorter(-1);
     result.versions = this.versions.map(function(version) {
-        return version.serializeMin();
+        return version.serialize();
     }).sort(function(v1, v2) {
         return versionSorter(v1.version, v2.version);
     });
@@ -300,24 +300,6 @@ Version.getByPackage = function(pkg) {
 Version.prototype.touch = function() {
     this.modifytime = new Date();
     return;
-};
-
-Version.prototype.serializeMin = function() {
-    var descriptor = JSON.parse(this.descriptor);
-    return {
-        "name": this.package.name,
-        "version": this.version,
-        "dependencies": descriptor.dependencies || undefined,
-        "engines": descriptor.engines || undefined,
-        "checksums": {
-            "md5": this.md5,
-            "sha1": this.sha1,
-            "sha256": this.sha256
-        },
-        "filename": this.filename,
-        "filesize": this.filesize,
-        "modified": this.modifytime.toISOString()
-   };
 };
 
 Version.prototype.serialize = function() {
