@@ -369,7 +369,7 @@ function removeOwner(pkg, owner, user) {
     if (!pkg.isOwner(user)) {
         throw new AuthenticationError("Only a package owner can remove other owners");
     } else if (!pkg.isOwner(owner)) {
-        throw new RegistryError(owner.name + " is not an owner of " + pkg.name);
+        throw new RegistryError(owner.name + " is not among the owners of " + pkg.name);
     } else if (pkg.owners.length < 2) {
         throw new RegistryError(pkg.name + " must have at least one owner");
     }
