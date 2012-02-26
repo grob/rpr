@@ -13,13 +13,6 @@ var addOwners = function() {
     store.commitTransaction();
 };
 
-var rebuildIndex = function() {
-    console.log("Rebuilding search index...");
-    require("./index").rebuild();
-    console.log("Done");
-};
-
-
 if (require.main == module.id) {
     var method = system.args.pop();
     if (!method || typeof(this[method]) !== "function") {

@@ -424,3 +424,10 @@ app.del("/owners/:pkgName/:ownerName", function(request, pkgName, ownerName) {
         });
     }
 });
+
+app.get("/_rebuildIndex", function() {
+    index.rebuild();
+    return response.ok({
+        "message": "Done"
+    });
+});
