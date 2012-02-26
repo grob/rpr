@@ -3,7 +3,7 @@ var fs = require("fs");
 var io = require("io");
 var strings = require("ringo/utils/strings");
 var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry,
-    ResetToken} = require("./model");
+    ResetToken, RelPackageOwner} = require("./model");
 var config = require("./config");
 var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
@@ -11,9 +11,15 @@ var utils = require("./utils");
 var index = require("./index");
 var mail = require("ringo-mail");
 
-export("AuthenticationError", "authenticate", "publishPackage",
+export("AuthenticationError", "RegistryError", "authenticate", "publishPackage",
         "publishFile", "unpublish", "storeTemporaryFile", "createFileName",
-        "initPasswordReset", "resetPassword");
+        "initPasswordReset", "resetPassword", "addOwner", "removeOwner");
+
+var RegistryError = function(message) {
+    this.name = "RegistryError";
+    this.message = message || "";
+};
+RegistryError.prototype = new Error();
 
 var AuthenticationError = function(message) {
     this.name = "AuthenticationError";
@@ -85,7 +91,7 @@ function storeTemporaryFile(bytes, filename) {
 function publishPackage(descriptor, filename, filesize, checksums, user, force) {
     var pkg = Package.getByName(descriptor.name);
     if (pkg != null && !pkg.isOwner(user)) {
-        throw new AuthenticationError("Only the original author of a package can publish a version");
+        throw new AuthenticationError("Only owners of a package are allowed to publish");
     }
     var logEntryType = LogEntry.TYPE_ADD;
     store.beginTransaction();
@@ -100,6 +106,8 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
         var maintainers = descriptor.maintainers.map(storeAuthor);
         if (pkg == null) {
             pkg = Package.create(descriptor.name, author || contributors[0], user);
+            // add the initial publisher to the list of package owners
+            RelPackageOwner.create(pkg, user, user).save();
         }
         // store/update version
         var version = pkg._id && pkg.getVersion(descriptor.version);
@@ -329,6 +337,48 @@ function resetPassword(user, tokenStr, password) {
         user.save();
         // remove token since we're finished here
         token.remove();
+        store.commitTransaction();
+    } catch (e) {
+        store.abortTransaction();
+        log.error(e);
+        throw e;
+    }
+}
+
+function addOwner(pkg, owner, user) {
+    if (!pkg.isOwner(user)) {
+        throw new AuthenticationError("Only a package owner can add additional owners");
+    } else if (pkg.isOwner(owner)) {
+        throw new RegistryError(owner.name + " is already owner of " + pkg.name);
+    }
+    log.info(user.name, "adds", owner.name, "to list of owners of", pkg.name);
+    store.beginTransaction();
+    try {
+        RelPackageOwner.create(pkg, owner, user).save();
+        pkg.touch();
+        pkg.save();
+        store.commitTransaction();
+    } catch (e) {
+        store.abortTransaction();
+        log.error(e);
+        throw e;
+    }
+}
+
+function removeOwner(pkg, owner, user) {
+    if (!pkg.isOwner(user)) {
+        throw new AuthenticationError("Only a package owner can remove other owners");
+    } else if (!pkg.isOwner(owner)) {
+        throw new RegistryError(owner.name + " is not an owner of " + pkg.name);
+    } else if (pkg.owners.length < 2) {
+        throw new RegistryError(pkg.name + " must have at least one owner");
+    }
+    log.info(user.name, "removes", owner.name, "from list of owners of", pkg.name);
+    store.beginTransaction();
+    try {
+        RelPackageOwner.get(pkg, owner).remove();
+        pkg.touch();
+        pkg.save();
         store.commitTransaction();
     } catch (e) {
         store.abortTransaction();

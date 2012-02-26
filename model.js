@@ -7,7 +7,7 @@ var {ByteArray} = require("binary");
 var strings = require("ringo/utils/strings");
 
 export("store", "Package", "Version", "User", "Author", "RelPackageAuthor",
-        "LogEntry", "ResetToken");
+        "RelPackageOwner", "LogEntry", "ResetToken");
 
 /**
  * create store
@@ -57,6 +57,51 @@ RelPackageAuthor.get = function(pkg, author, role) {
         query.equals("role", role);
     }
     return query.select()[0];
+};
+
+var RelPackageOwner = store.defineEntity("RelPackageOwner", {
+    "table": "T_REL_PACKAGE_OWNER",
+    "id": {
+        "column": "RPO_ID",
+        "sequence": "REL_PACKAGE_OWNER_ID"
+    },
+    "properties": {
+        "package": {
+            "type": "object",
+            "entity": "Package",
+            "column": "RPO_F_PKG"
+        },
+        "owner": {
+            "type": "object",
+            "entity": "User",
+            "column": "RPO_F_USR"
+        },
+        "creator": {
+            "type": "object",
+            "entity": "User",
+            "column": "RPO_F_USR_CREATOR"
+        },
+        "createtime": {
+            "type": "timestamp",
+            "column": "RPO_CREATETIME"
+        }
+    }
+});
+
+RelPackageOwner.create = function(pkg, owner, creator) {
+    return new RelPackageOwner({
+        "package": pkg,
+        "owner": owner,
+        "creator": creator,
+        "createtime": new Date()
+    });
+};
+
+RelPackageOwner.get = function(pkg, owner) {
+    return RelPackageOwner.query()
+        .equals("package", pkg)
+        .equals("owner", owner)
+        .select()[0];
 };
 
 var Package = store.defineEntity("Package", {
@@ -123,6 +168,13 @@ var Package = store.defineEntity("Package", {
             "join": "RelPackageAuthor.author === Author.id",
             "foreignProperty": "RelPackageAuthor.package",
             "filter": "RelPackageAuthor.role === 'contributor'"
+        },
+        "owners": {
+            "type": "collection",
+            "entity": "User",
+            "through": "RelPackageOwner",
+            "join": "RelPackageOwner.owner === User.id",
+            "foreignProperty": "RelPackageOwner.package"
         }
     }
 });
@@ -139,8 +191,11 @@ Package.create = function(name, author, creator) {
 };
 
 Package.remove = function(pkg) {
-    pkg.versions.forEach(function(v) {
-        v.remove();
+    pkg.versions.forEach(function(version) {
+        version.remove();
+    });
+    pkg.owners.forEach(function(owner) {
+        RelPackageOwner.get(pkg, owner).remove();
     });
     for each (var key in ["contributor", "maintainer"]) {
         pkg[key + "s"].forEach(function(author) {
@@ -174,6 +229,10 @@ Package.prototype.serialize = function() {
     }).sort(function(v1, v2) {
         return versionSorter(v1.version, v2.version);
     });
+    // serialize package owners
+    result.owners = this.owners.map(function(user) {
+        return user.serialize();
+    });
     return result;
 };
 
@@ -182,7 +241,7 @@ Package.prototype.getVersion = function(version) {
 };
 
 Package.prototype.isOwner = function(user) {
-    return this.creator._key.equals(user._key);
+    return this.owners.indexOf(user) > -1;
 };
 
 Package.prototype.isLatestVersion = function(version) {
@@ -398,6 +457,13 @@ User.prototype.touch = function() {
 
 User.prototype.equals = function(user) {
     return this._key.equals(user._key);
+};
+
+User.prototype.serialize = function() {
+    return {
+        "name": this.name,
+        "email": this.email
+    };
 };
 
 var Author = store.defineEntity("Author", {
