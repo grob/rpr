@@ -31,6 +31,7 @@ app.get("/:pkgName", function(request, pkgName, versionStr) {
     if (pkg != null) {
         return response.ok(pkg.serialize());
     }
+    log.info("Package", pkgName, "not found");
     return response.notfound({
         "message": "Package '" + pkgName + "' not found"
     });
@@ -48,6 +49,7 @@ app.get("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
             return response.ok(version.serialize());
         }
     }
+    log.info("Version", versionStr, "of package", pkgName, "does not exist");
     return response.notfound({
         "message": "Version " + versionStr + " of package '" + pkgName + "' not found"
     });
@@ -67,10 +69,12 @@ app.del("/:pkgName", function(request, pkgName) {
     try {
         var user = registry.authenticate(username, password);
         registry.unpublish(pkg, null, user);
+        log.info("Unpublished", pkg.name);
         return response.ok({
             "message": "Package " + pkg.name + " has been removed"
         });
     } catch (e if e instanceof AuthenticationError) {
+        log.info("Authentication failure of", username);
         return response.forbidden({
             "message": e.message
         });
@@ -96,11 +100,13 @@ app.del("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     try {
         var user = registry.authenticate(username, password);
         registry.unpublish(pkg, versionStr, user);
+        log.info("Unpublished", versionStr, "of package", pkg.name);
         return response.ok({
             "message": "Version " + versionStr + " of package " +
                 pkg.name + " has been removed"
         });
     } catch (e if e instanceof AuthenticationError) {
+        log.info("Authentication failure of", username);
         return response.forbidden({
             "message": e.message
         });
@@ -130,11 +136,13 @@ app.post("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
         registry.publishPackage(descriptor, filename, filesize, checksums, user, force);
         // move file to final destination
         registry.publishFile(tmpFilePath, filename);
+        log.info("Published", descriptor.version, "of package", descriptor.name);
         return response.ok({
             "message": "The package " + descriptor.name + " (v" +
                 descriptor.version + ") has been published"
         });
     } catch (e if e instanceof AuthenticationError) {
+        log.info("Authentication failure of", username);
         return response.forbidden({
             "message": e.message
         });

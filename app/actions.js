@@ -49,7 +49,7 @@ app.get("/search", function(request) {
         return response.ok(index.search(request.queryParams.q,
                 request.queryParams.l, request.queryParams.o));
     } catch (e) {
-        console.log("error:", e);
+        log.error(e);
         return response.error({
             "message": e.message
         });
