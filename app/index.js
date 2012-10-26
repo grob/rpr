@@ -1,6 +1,6 @@
-var {indexDir} = require("./config");
+var {indexDir} = require("./config/config");
 var {Index} = require("lucindex");
-var {Package} = require("./model");
+var {Package} = require("./model/package");
 var {Document, Field, NumericField} = org.apache.lucene.document;
 var {MultiFieldQueryParser} = org.apache.lucene.queryParser;
 var {Version} = org.apache.lucene.util;
@@ -28,7 +28,7 @@ var analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Version.LUCENE_3
 });
 
 var manager = exports.manager = module.singleton("index", function() {
-    return Index.createIndex(indexDir, "index", analyzer);
+    return Index.createIndex(indexDir, "rpr", analyzer);
 });
 
 var createDocument = exports.createDocument = function(pkg) {

@@ -1,5 +1,7 @@
-var {store, Package, Version, User, Author, RelPackageAuthor,
-        RelPackageOwner, LogEntry} = require("./model");
+var system = require("system");
+var {store} = require("../app/model/store");
+var {Package, Version, User, Author, RelPackageAuthor,
+        RelPackageOwner, LogEntry} = require("../app/model/all");
 
 var addOwners = function() {
     store.beginTransaction();

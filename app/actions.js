@@ -1,14 +1,17 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var fs = require("fs");
-var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry} = require("./model");
+var {store} = require("./model/store");
+var {Package, Version, User, Author, RelPackageAuthor, LogEntry} =
+        require("./model/all");
 var {mimeType} = require("ringo/mime");
-var config = require("./config");
-var response = require("./response");
+var config = require("./config/config");
+var response = require("./utils/response");
 var semver = require("ringo-semver");
 var registry = require("./registry");
 var index = require("./index");
-var utils = require("./utils");
+var utils = require("./utils/utils");
+var {AuthenticationError, RegistryError} = require("./errors");
 
 var app = exports.app = new Application();
 app.configure("gzip", "etag", "requestlog", "error", "notfound", "params", "upload", "route");
@@ -30,21 +33,22 @@ app.get("/updates", function(request) {
     var dateStr = request.headers["if-modified-since"];
     if (dateStr != null) {
         var sdf = new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zz");
+        var date;
         try {
-            var date = sdf.parse(dateStr);
-            var updated = Package.getUpdatedSince(date).map(function(pkg) {
-                return pkg.serialize();
-            });
-            var removed = LogEntry.getRemovedPackages(date);
-            if (updated.length > 0 || removed.length > 0) {
-                return response.ok({
-                    "updated": updated,
-                    "removed": removed
-                });
-            }
+            date = new Date(sdf.parse(dateStr).getTime());
         } catch (e) {
             return response.bad({
                 "message": "Invalid 'if-modified-since' header"
+            });
+        }
+        var updated = Package.getUpdatedSince(date).map(function(pkg) {
+            return pkg.serialize();
+        });
+        var removed = LogEntry.getRemovedPackages(date);
+        if (updated.length > 0 || removed.length > 0) {
+            return response.ok({
+                "updated": updated,
+                "removed": removed
             });
         }
     }
@@ -56,6 +60,7 @@ app.get("/search", function(request) {
         return response.ok(index.search(request.queryParams.q,
                 request.queryParams.l, request.queryParams.o));
     } catch (e) {
+        console.log("error:", e);
         return response.error({
             "message": e.message
         });
@@ -140,7 +145,7 @@ app.del("/packages/:pkgName", function(request, pkgName) {
         return response.ok({
             "message": "Package " + pkg.name + " has been removed"
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -170,7 +175,7 @@ app.del("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr)
             "message": "Version " + versionStr + " of package " +
                 pkg.name + " has been removed"
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -204,7 +209,7 @@ app.post("/packages/:pkgName/:versionStr", function(request, pkgName, versionStr
             "message": "The package " + descriptor.name + " (v" +
                 descriptor.version + ") has been published"
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -264,7 +269,7 @@ app.post("/users/:username/reset", function(request, username) {
             "message": "An email has been sent to " + email +
                     ". Please follow the instructions therein to reset your password"
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -293,7 +298,7 @@ app.post("/users/:username/password", function(request, username) {
         return response.ok({
             "message": "Your password has been reset"
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -344,7 +349,7 @@ app.post("/password", function(request) {
         return response.ok({
             "message": "Changed password"
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -375,11 +380,11 @@ app.put("/owners/:pkgName/:ownerName", function(request, pkgName, ownerName) {
         return response.ok({
             "message": "Added " + owner.name + " to list of owners of " + pkg.name
         });
-    } catch (e if e instanceof registry.RegistryError) {
+    } catch (e if e instanceof RegistryError) {
         return response.bad({
             "message": e.message
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });
@@ -410,11 +415,11 @@ app.del("/owners/:pkgName/:ownerName", function(request, pkgName, ownerName) {
         return response.ok({
             "message": "Removed " + owner.name + " from list of owners of " + pkg.name
         });
-    } catch (e if e instanceof registry.RegistryError) {
+    } catch (e if e instanceof RegistryError) {
         return response.bad({
             "message": e.message
         });
-    } catch (e if e instanceof registry.AuthenticationError) {
+    } catch (e if e instanceof AuthenticationError) {
         return response.forbidden({
             "message": e.message
         });

@@ -2,30 +2,20 @@ var log = require("ringo/logging").getLogger(module.id);
 var fs = require("fs");
 var io = require("io");
 var strings = require("ringo/utils/strings");
-var {store, Package, Version, User, Author, RelPackageAuthor, LogEntry,
-    ResetToken, RelPackageOwner} = require("./model");
-var config = require("./config");
+var {store} = require("./model/store");
+var {Package, Version, User, Author, RelPackageAuthor, LogEntry,
+    ResetToken, RelPackageOwner} = require("./model/all");
+var config = require("./config/config");
 var semver = require("ringo-semver");
 var files = require("ringo/utils/files");
-var utils = require("./utils");
+var utils = require("./utils/utils");
 var index = require("./index");
 var mail = require("ringo-mail");
+var {AuthenticationError, RegistryError} = require("./errors");
 
-export("AuthenticationError", "RegistryError", "authenticate", "publishPackage",
+export("authenticate", "publishPackage",
         "publishFile", "unpublish", "storeTemporaryFile", "createFileName",
         "initPasswordReset", "resetPassword", "addOwner", "removeOwner");
-
-var RegistryError = function(message) {
-    this.name = "RegistryError";
-    this.message = message || "";
-};
-RegistryError.prototype = new Error();
-
-var AuthenticationError = function(message) {
-    this.name = "AuthenticationError";
-    this.message = message || "";
-};
-AuthenticationError.prototype = new Error();
 
 function authenticate(username, password) {
     var user = User.getByName(username);
@@ -108,11 +98,13 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             pkg = Package.create(descriptor.name, author || contributors[0], user);
             // add the initial publisher to the list of package owners
             RelPackageOwner.create(pkg, user, user).save();
+            pkg.owners.add(user);
         }
         // store/update version
         var version = pkg._id && pkg.getVersion(descriptor.version);
         if (!version) {
             version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
+            pkg.versions.add(version);
             pkg.latestVersion = version;
         } else if (force) {
             version.descriptor = JSON.stringify(descriptor);
@@ -127,6 +119,7 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             if (pkg.isLatestVersion(version)) {
                 pkg.descriptor = version.descriptor;
             }
+            pkg.versions.invalidate();
             logEntryType = LogEntry.TYPE_UPDATE;
         } else {
             throw new Error("Version " + version.version + " of package " +
@@ -275,6 +268,7 @@ function storeAuthorRelations(pkg, collection, authors, role) {
         if (collection.indexOf(author) < 0) {
             var relation = RelPackageAuthor.create(pkg, author, role);
             relation.save();
+            collection.add(author);
             log.info("Added", author.name, "as", role, "to", pkg.name);
         }
     }
@@ -287,6 +281,7 @@ function storeAuthorRelations(pkg, collection, authors, role) {
     }).forEach(function(author) {
         var relation = RelPackageAuthor.get(pkg, author, role);
         relation.remove();
+        collection.remove(author);
         log.info("Removed", author.name, "as", role, "from", pkg.name);
     })
     return;
@@ -355,6 +350,7 @@ function addOwner(pkg, owner, user) {
     store.beginTransaction();
     try {
         RelPackageOwner.create(pkg, owner, user).save();
+        pkg.owners.add(user);
         pkg.touch();
         pkg.save();
         store.commitTransaction();
@@ -377,6 +373,7 @@ function removeOwner(pkg, owner, user) {
     store.beginTransaction();
     try {
         RelPackageOwner.get(pkg, owner).remove();
+        pkg.owners.remove(owner);
         pkg.touch();
         pkg.save();
         store.commitTransaction();
