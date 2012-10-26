@@ -1,0 +1,20 @@
+{
+    "httpPort": 8080,
+    "db": {
+        "url": "jdbc:mysql://localhost/rpr",
+        "driver": "com.mysql.jdbc.Driver",
+        "username": "rpr",
+        "password": "rpr",
+        "maxConnections": 100,
+        "cacheSize": 10000
+    },
+    "tmpDir": "../../tmp/",
+    "packageDir": "../../packages",
+    "indexDir": "../../index/",
+    "smtp": {
+        "host": "grace.nomatic.org",
+        "port": 25,
+        "encrypt": false
+    },
+    "email": "RingoJS Package Registry <rpr@nomatic.org>"
+}
