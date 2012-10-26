@@ -6,5 +6,5 @@ app.static(module.resolve("../static/"), "index.html");
 
 //Script run from command line
 if (require.main === module) {
-    require('ringo/httpserver').main(module.id);
+    require("ringo/httpserver").main(module.id);
 }
