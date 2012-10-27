@@ -27,6 +27,8 @@ var analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Version.LUCENE_3
     "name_ngrams": new NGramAnalyzer(3, 5)
 });
 
+var standardAnalyzer = new StandardAnalyzer(Version.LUCENE_35);
+
 var manager = exports.manager = module.singleton("index", function() {
     return Index.createIndex(indexDir, "rpr", analyzer);
 });
@@ -66,7 +68,7 @@ exports.search = function(q, length, offset) {
     if (typeof(q) === "string" && q.length > 0) {
         var parser = new MultiFieldQueryParser(Version.LUCENE_35,
                  ["name", "name_ngrams", "description", "keyword", "author", "maintainer", "contributor"],
-                analyzer, {
+                standardAnalyzer, {
                     "name": Float.parseFloat(2),
                     "keyword": Float.parseFloat(1.5)
                 });
