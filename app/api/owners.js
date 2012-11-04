@@ -1,11 +1,11 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 
-var response = require("./utils/response");
-var {AuthenticationError, RegistryError} = require("./errors");
-var {Package, User} = require("./model/all");
-var registry = require("./registry");
-var utils = require("./utils/utils");
+var response = require("../utils/response");
+var {AuthenticationError, RegistryError} = require("../errors");
+var {Package, User} = require("../model/all");
+var registry = require("../registry");
+var utils = require("../utils/utils");
 
 var app = exports.app = new Application();
 app.configure("route");

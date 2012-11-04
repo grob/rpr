@@ -2,12 +2,12 @@ var fs = require("fs");
 var log = require("ringo/logging").getLogger(module.id);
 
 var {Application} = require("stick");
-var response = require("./utils/response");
-var {AuthenticationError, RegistryError} = require("./errors");
+var response = require("../utils/response");
+var {AuthenticationError, RegistryError} = require("../errors");
 var {Package, Version, User, Author, RelPackageAuthor, LogEntry} =
-        require("./model/all");
-var registry = require("./registry");
-var utils = require("./utils/utils");
+        require("../model/all");
+var registry = require("../registry");
+var utils = require("../utils/utils");
 var semver = require("ringo-semver");
 
 
@@ -136,7 +136,7 @@ app.post("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
         registry.publishPackage(descriptor, filename, filesize, checksums, user, force);
         // move file to final destination
         registry.publishFile(tmpFilePath, filename);
-        log.info("Published", descriptor.version, "of package", descriptor.name);
+        log.info("Published", descriptor.name, descriptor.version);
         return response.ok({
             "message": "The package " + descriptor.name + " (v" +
                 descriptor.version + ") has been published"

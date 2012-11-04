@@ -9,7 +9,7 @@
         "cacheSize": 10000
     },
     "tmpDir": "../../tmp/",
-    "packageDir": "../../packages",
+    "downloadDir": "../../download",
     "indexDir": "../../index/",
     "smtp": {
         "host": "grace.nomatic.org",

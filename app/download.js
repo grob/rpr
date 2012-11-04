@@ -12,7 +12,7 @@ app.configure("route");
  * Download a .zip archive
  */
 app.get("/:filename", function(request, filename) {
-    var repo = getRepository(config.packageDir);
+    var repo = getRepository(config.downloadDir);
     var archive = repo.getResource(filename);
     if (archive && archive.exists()) {
         return response.static(archive, mimeType(filename));

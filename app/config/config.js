@@ -98,7 +98,7 @@ module.exports = module.singleton("config", function() {
          * @name packageDir
          * @type String
          */
-        "packageDir": fs.resolve(homeDir, config.packageDir),
+        "downloadDir": fs.resolve(homeDir, config.downloadDir),
 
         /**
          * The directory containing the search index (relative to the
