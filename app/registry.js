@@ -98,13 +98,14 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             pkg = Package.create(descriptor.name, author || contributors[0], user);
             // add the initial publisher to the list of package owners
             RelPackageOwner.create(pkg, user, user).save();
-            pkg.owners.add(user);
+            pkg.owners.invalidate();
         }
         // store/update version
         var version = pkg._id && pkg.getVersion(descriptor.version);
         if (!version) {
             version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
-            pkg.versions.add(version);
+            version.save();
+            pkg.versions.invalidate();
             pkg.latestVersion = version;
         } else if (force) {
             version.descriptor = JSON.stringify(descriptor);
@@ -148,11 +149,11 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
 }
 
 function publishFile(tmpFilePath, filename) {
-    if (!fs.exists(config.packageDir) || !fs.isWritable(config.packageDir)) {
-        throw new Error("Unable to store package archive:", config.packageDir,
+    if (!fs.exists(config.downloadDir) || !fs.isWritable(config.downloadDir)) {
+        throw new Error("Unable to store package archive:", config.downloadDir,
                 "doesn't exist or isn't writable");
     }
-    var dest = fs.join(config.packageDir, filename);
+    var dest = fs.join(config.downloadDir, filename);
     log.info("Moving package file from", tmpFilePath, "to", dest);
     if (fs.exists(dest)) {
         log.info("Removing already published file", dest);
@@ -217,7 +218,7 @@ function unpublish(pkg, version, user) {
 }
 
 function removeArchive(filename) {
-    var path = fs.join(config.packageDir, filename);
+    var path = fs.join(config.downloadDir, filename);
     if (!fs.exists(path)) {
         log.warn("Published package archive", path, "not found");
     } else {
@@ -268,7 +269,7 @@ function storeAuthorRelations(pkg, collection, authors, role) {
         if (collection.indexOf(author) < 0) {
             var relation = RelPackageAuthor.create(pkg, author, role);
             relation.save();
-            collection.add(author);
+            collection.invalidate();
             log.info("Added", author.name, "as", role, "to", pkg.name);
         }
     }
@@ -350,7 +351,7 @@ function addOwner(pkg, owner, user) {
     store.beginTransaction();
     try {
         RelPackageOwner.create(pkg, owner, user).save();
-        pkg.owners.add(user);
+        pkg.owners.invalidate();
         pkg.touch();
         pkg.save();
         store.commitTransaction();

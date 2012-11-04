@@ -1,5 +1,7 @@
 var {store} = require("./store");
 var semver = require("ringo-semver");
+var {RelPackageOwner} = require("./relpackageowner");
+var {RelPackageAuthor} = require("./relpackageauthor");
 
 var Package = exports.Package = store.defineEntity("Package", {
     "table": "T_PACKAGE",
