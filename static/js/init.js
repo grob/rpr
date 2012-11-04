@@ -1,12 +1,54 @@
 require.config({
-    "baseUrl": "js/"
+    // Paths that contain the various different javascript files.
+    "paths": {
+        "lib": "./lib",
+        "utils/dates": "./lib/utils/dates",
+        "utils/strings": "./lib/utils/strings",
+        "utils/numbers": "./lib/utils/numbers",
+        "models": "./models",
+        "collections": "./collections",
+        "views": "./views",
+
+        // Library paths.
+        "jquery": "./lib/jquery",
+        "underscore": "./lib/lodash",
+        "backbone": "./lib/backbone",
+        "hogan": "./lib/hogan"
+    },
+
+	// The shim config allows us to configure dependencies for
+	// scripts that do not call define() to register a module
+	"shim": {
+		"underscore": {
+			"exports": '_'
+		},
+		"backbone": {
+			"deps": [
+				"underscore",
+				"jquery"
+			],
+			"exports": "Backbone"
+        },
+        "hogan": {
+            "exports": "Hogan"
+        }
+	}
 });
 
-define(function(require, exports, module) {
-    var domReady = require("lib/domReady");
-    var App = require("app").App;
+define([
+    "lib/domReady",
+    "router",
+    "app",
+    "views/view.search",
+    "views/view.list",
+    "collections/collection.packages"
+], function(domReady, Router, app, SearchView, ListView, Packages) {
     domReady(function() {
-        window.app = (new App()).init();
+        app.views.search = new SearchView();
+        app.views.list = new ListView({
+            "collection": new Packages()
+        });
+        app.router = new Router();
     });
 });
 

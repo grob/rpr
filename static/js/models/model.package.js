@@ -1,11 +1,15 @@
-define(function(require, exports, module) {
+define([
+    "backbone",
+    "collections/collection.versions"
+], function(Backbone, Versions) {
 
-    var Versions = require("collections/collection.versions").Versions;
+    var Package = Backbone.Model.extend({});
 
-    var Package = exports.Package = Backbone.MappedModel.extend({
-        "mapping": {
-            "versions": Versions
-        }
-    });
+    Package.prototype.parse = function(data) {
+        this.versions = new Versions(data.versions);
+        return data;
+    };
+
+    return Package;
 
 });

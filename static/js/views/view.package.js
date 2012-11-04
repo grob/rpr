@@ -1,9 +1,9 @@
-define(function(require, exports, module) {
-
-    var hogan = require("lib/hogan");
-
-    var dates = require("lib/utils/dates");
-    var numbers = require("lib/utils/numbers");
+define([
+    "backbone",
+    "hogan",
+    "utils/dates",
+    "utils/numbers"
+], function(Backbone, hogan, dates, numbers) {
 
     var convertDependencies = function(deps) {
         if (!deps) {
@@ -31,7 +31,7 @@ define(function(require, exports, module) {
         }
     };
 
-    var PackageView = exports.PackageView = Backbone.View.extend({
+    var PackageView = Backbone.View.extend({
         "tagName": "li",
         "events": {
             "click .menu li": "toggle",
@@ -89,5 +89,7 @@ define(function(require, exports, module) {
         }
         return false;
     };
+
+    return PackageView;
 
 });

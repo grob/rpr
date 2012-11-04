@@ -1,9 +1,12 @@
-define(function(require, exports, module) {
+define([
+    "backbone",
+    "models/model.version"
+], function(Backbone, Version) {
 
-    var Version = require("models/model.version").Version;
-
-    var Versions = exports.Versions = Backbone.Collection.extend({
+    var Versions = Backbone.Collection.extend({
         "model": Version
     });
+
+    return Versions;
 
 });

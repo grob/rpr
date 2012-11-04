@@ -1,5 +1,7 @@
-define(function(require, exports, module) {
+define([
+    "backbone"
+], function(Backbone) {
 
-    var Version = exports.Version = Backbone.Model.extend({});
+    return Backbone.Model.extend({});
 
 });

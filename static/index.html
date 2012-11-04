@@ -4,18 +4,14 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>RingoJS Package Registry</title>
-    <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="css/main.css" />
-    <script type="text/javascript" src="js/lib/jquery.js"></script>
-    <script type="text/javascript" src="js/lib/underscore.js"></script>
-    <script type="text/javascript" src="js/lib/backbone.js"></script>
-    <script type="text/javascript" src="js/lib/backbone.mapping.js"></script>
-    <script type="text/javascript" src="js/lib/require.js" data-main="js/init.built.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="/css/main.css" />
+    <script type="text/javascript" src="/js/lib/require.js" data-main="/js/init.js"></script>
 </head>
 <body>
 
     <header>
-        <a href="#"><h1><span class="c1">ringo</span><span class="c2">js</span> package registry</h1></a>
+        <a href="/"><h1><span class="c1">ringo</span><span class="c2">js</span> package registry</h1></a>
     </header>
 
     <div id="main">
@@ -27,7 +23,7 @@
     </div>
 
     <script id="tmpl-package" type="text/html">
-        <h2><a href="#!/packages/{{name}}">{{name}}</a> {{latest}}</h2>
+        <h2><a href="/packages/{{name}}">{{name}}</a> {{latest}}</h2>
         <p>{{description}}</p>
         <ul class="menu">
             <li data-display=".details">Details</li>
@@ -37,7 +33,7 @@
             <dt>Keywords</dt>
             <dd>
                 {{#keywords}}
-                <a href="/#!/search/{{.}}">{{.}}</a>
+                <a href="/search/{{.}}">{{.}}</a>
                 {{/keywords}}
             </dd>
             {{#author}}
@@ -55,7 +51,7 @@
             <dd>
                 <ul>
                 {{#dependencies}}
-                    <li><a href="#!/packages/{{name}}">{{name}}</a> {{version}}</li>
+                    <li><a href="/download/{{name}}">{{name}}</a> {{version}}</li>
                 {{/dependencies}}
                 {{^dependencies}}
                     <li>none</li>
@@ -145,7 +141,7 @@
                         <dd>
                             <ul>
                             {{#dependencies}}
-                                <li><a href="#!/packages/{{name}}">{{name}}</a> {{version}}</li>
+                                <li><a href="/download/{{name}}">{{name}}</a> {{version}}</li>
                             {{/dependencies}}
                             {{^dependencies}}
                                 <li>none</li>

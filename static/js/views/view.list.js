@@ -1,9 +1,11 @@
-define(function(require, exports, module) {
+define([
+    "backbone",
+    "app",
+    "views/view.package",
+    "models/model.package"
+], function(Backbone, app, PackageView, Package) {
 
-    var PackageView = require("views/view.package").PackageView;
-    var Package = require("models/model.package").Package;
-
-    var ListView = exports.ListView = Backbone.View.extend({
+    var ListView = Backbone.View.extend({
         "el": "#list",
         "$result": $("#result", this.el),
         "$loadmore": $("#loadmore", this.el).hide(),
@@ -13,6 +15,7 @@ define(function(require, exports, module) {
         },
 
         "initialize": function() {
+            this.perPage = 10;
             this.collection.bind("reset", this.clearList, this);
             this.collection.bind("fetched", this.onLoaded, this);
         }
@@ -33,6 +36,7 @@ define(function(require, exports, module) {
         this.$result.append($(items).hide().fadeIn(300));
         $(items[0]).addClass("pageborder");
         this.$loadmore.toggle(this.collection.hasMore());
+        app.trigger("list:loaded");
     };
 
     ListView.prototype.loadMore = function(event) {
@@ -55,16 +59,17 @@ define(function(require, exports, module) {
 
     ListView.prototype.search = function(q, perPage) {
         this.query = q || "";
-        this.perPage = perPage;
+        this.perPage = perPage || this.perPage;
         this.offset = 0;
         this.collection.fetch({
             "data": this.getUrlParameters()
         });
+        app.trigger("list:loading", q);
     };
 
     ListView.prototype.single = function(name) {
         (new Package()).fetch({
-            "url": "/packages/" + name + "/",
+            "url": "/api/packages/" + name + "/",
             "success": $.proxy(function(model) {
                 var packageView = new PackageView({
                     "model": model
@@ -72,8 +77,11 @@ define(function(require, exports, module) {
                 $(packageView.render().el)
                     .appendTo(this.$result.empty())
                     .addClass("selected").triggerHandler("click");
+                this.$loadmore.hide();
             }, this)
         });
     };
+
+    return ListView;
 
 });

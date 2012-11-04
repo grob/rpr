@@ -1,9 +1,10 @@
-define(function(require, exports, module) {
+define([
+    "backbone",
+    "models/model.package"
+], function(Backbone, Package) {
 
-    var Package = require("models/model.package").Package;
-
-    var Packages = exports.Packages = Backbone.Collection.extend({
-        "url": "/search",
+    var Packages = Backbone.Collection.extend({
+        "url": "/api/search",
         "model": Package,
         "initialize": function() {
             this.total = 0;
@@ -18,7 +19,7 @@ define(function(require, exports, module) {
     Packages.prototype.fetch = function (options) {
         typeof(options) != 'undefined' || (options = {});
         this.trigger("fetching");
-        options = options || {};
+        options = _.extend({}, options);
         var success = options.success;
         options.success = function(collection, response) {
             collection.trigger("fetched");
@@ -34,7 +35,6 @@ define(function(require, exports, module) {
     };
 
     Packages.prototype.reset = function(models, options) {
-        this.total = models.length;
         this.offset = 0;
         return Backbone.Collection.prototype.reset.apply(this, arguments);
     };
@@ -48,4 +48,5 @@ define(function(require, exports, module) {
         });
     };
 
+    return Packages;
 });
