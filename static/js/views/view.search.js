@@ -26,7 +26,6 @@ define([
 
     SearchView.prototype.onLoaded = function() {
         this.$el.removeClass("active");
-        this.setDocTitle();
     };
 
     SearchView.prototype.handleInput = function(event) {
@@ -38,15 +37,6 @@ define([
             app.views.list.search(q);
             app.router.navigate("search/" + encodeURIComponent(q));
         }
-    };
-
-    SearchView.prototype.setDocTitle = function() {
-        var docTitle = window.document.title;
-        docTitle = docTitle.split(":").slice(0, 1);
-        if (this.query.length > 0) {
-            docTitle.push("'" + this.query + "'");
-        }
-        window.document.title = docTitle.join(": ");
     };
 
     return SearchView;

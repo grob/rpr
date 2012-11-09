@@ -1,93 +1,75 @@
 define([
+    "underscore",
     "backbone",
+    "app",
     "hogan",
-    "utils/dates",
-    "utils/numbers"
-], function(Backbone, hogan, dates, numbers) {
-
-    var convertDependencies = function(deps) {
-        if (!deps) {
-            return deps;
-        }
-        return _.map(_.keys(deps), function(key) {
-            return {
-                "name": key,
-                "version": deps[key]
-            };
-        });
-    };
-
-    // lambdas needed for rendering the template
-    var lambdas = {
-        "formatDate": function() {
-            return function(str, render) {
-                return dates.format(dates.parse(render(str)), "dd.MM.yyyy HH:mm");
-            }
-        },
-        "formatFileSize": function() {
-            return function(bytes, render) {
-                return numbers.formatFileSize(render(bytes));
-            }
-        }
-    };
+    "views/view.details",
+    "views/view.versions",
+    "utils/dates"
+], function(_, Backbone, app, hogan, DetailsView, VersionsView, dates) {
 
     var PackageView = Backbone.View.extend({
         "tagName": "li",
+        "template": hogan.compile(document.getElementById("tmpl-package").innerHTML),
         "events": {
-            "click .menu li": "toggle",
-            "click .checksums": "toggleChecksums",
-            "click": "toggleTabs"
-        },
-        "initialize": function() {
-            this.model.bind("change", this.render, this);
-            this.template = hogan.compile(document.getElementById("tmpl-package").innerHTML);
+            "click .menu li.details": "toggleDetails",
+            "click .menu li.versions": "toggleVersions",
+            "click h2 a": function(event) {
+                app.router.navigate($(event.target).attr("href"), true);
+                return false;
+            },
+            "click": "toggle"
         }
-
     });
 
     PackageView.prototype.render = function() {
-        var ctx = _.extend(this.model.toJSON(), lambdas);
-        ctx.dependencies = convertDependencies(ctx.dependencies);
-        ctx.engines = convertDependencies(ctx.engines);
-        _.each(ctx.versions, function(version) {
-            version.dependencies = convertDependencies(version.dependencies);
-            version.engines = convertDependencies(version.engines);
-        });
-        if (ctx.engines != null) {
-            ctx.ringoVersion = ctx.engines.ringojs;
-        }
-        $(this.el).append(this.template.render(ctx));
+        this.$el.append(this.template.render(this.model.toJSON()));
         return this;
     };
 
-    PackageView.prototype.toggleTabs = function(event) {
-        if ($(event.target).is("a")) {
-            return true;
-        }
-        var $expanded = $(".menu li.expanded", this.el);
-        if ($expanded.length > 0) {
-            $expanded.trigger("click");
-        } else {
-            $(".menu li:first", this.el).trigger("click");
-        }
-        return false;
-    };
-
-    PackageView.prototype.toggleChecksums = function(event) {
-        var $toggler = $(event.target).toggleClass("expanded");
-        $toggler.next("dd.checksums").fadeToggle();
-        return false;
-    };
-
     PackageView.prototype.toggle = function(event) {
-        var $item = $(event.target);
-        $item.toggleClass("expanded").siblings().removeClass("expanded");
-        $(this.el).toggleClass("selected", $item.hasClass("expanded"));
-        var $lists = $item.parent().nextAll("dl").removeClass("expanded");
-        if ($item.hasClass("expanded")) {
-            $lists.filter($item.data("display")).addClass("expanded");
+        if ($(event.target).is("a")) {
+            return;
         }
-        return false;
+        if (this.current != null) {
+            this.toggleTab(this.$(".menu li.expanded"), this.current.constructor);
+        } else {
+            this.toggleTab(this.$(".menu li.details"), DetailsView);
+        }
+    };
+
+    PackageView.prototype.toggleDetails = function(event) {
+        event.stopImmediatePropagation();
+        this.toggleTab($(event.target), DetailsView);
+    };
+
+    PackageView.prototype.toggleVersions = function(event) {
+        event.stopImmediatePropagation();
+        this.toggleTab($(event.target), VersionsView);
+    };
+
+    PackageView.prototype.toggleTab = function($menuItem, View) {
+        if (this.current != null) {
+            if (this.current instanceof View) {
+                $menuItem.removeClass("expanded");
+                this.current.close(true);
+                this.current = null;
+                return;
+            } else {
+                this.current.close();
+            }
+        }
+        $menuItem.addClass("expanded").siblings().removeClass("expanded");
+        var view = new View({
+            "model": this.model
+        });
+        var $tab = this.$(".tab").html(view.render().el).hide();
+        if (this.current == null) {
+            $tab.slideDown("fast");
+        } else {
+            $tab.show();
+        }
+        this.current = view;
     };
 
     return PackageView;

@@ -7,14 +7,12 @@ define([
 
     var ListView = Backbone.View.extend({
         "el": "#list",
-        "$result": $("#result", this.el),
-        "$loadmore": $("#loadmore", this.el).hide(),
-
         "events": {
             "click #loadmore": "loadMore"
         },
-
         "initialize": function() {
+            this.$result = this.$("#result");
+            this.$loadmore = this.$("#loadmore").hide();
             this.perPage = 10;
             this.collection.bind("reset", this.clearList, this);
             this.collection.bind("fetched", this.onLoaded, this);
@@ -36,7 +34,12 @@ define([
         this.$result.append($(items).hide().fadeIn(300));
         $(items[0]).addClass("pageborder");
         this.$loadmore.toggle(this.collection.hasMore());
-        app.trigger("list:loaded");
+        if (this.query) {
+            this.setDocTitle("Search for '" + this.query + "'");
+        } else {
+            this.setDocTitle();
+        }
+        app.trigger("list:loaded", this.query);
     };
 
     ListView.prototype.loadMore = function(event) {
@@ -64,7 +67,7 @@ define([
         this.collection.fetch({
             "data": this.getUrlParameters()
         });
-        app.trigger("list:loading", q);
+        app.trigger("list:loading", this.query);
     };
 
     ListView.prototype.single = function(name) {
@@ -78,8 +81,18 @@ define([
                     .appendTo(this.$result.empty())
                     .addClass("selected").triggerHandler("click");
                 this.$loadmore.hide();
+                this.setDocTitle(name);
             }, this)
         });
+    };
+
+    ListView.prototype.setDocTitle = function(text) {
+        var docTitle = window.document.title;
+        docTitle = docTitle.split(":").slice(0, 1);
+        if (typeof(text) === "string" && text.length > 0) {
+            docTitle.push(text);
+        }
+        window.document.title = docTitle.join(": ");
     };
 
     return ListView;

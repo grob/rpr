@@ -1,7 +1,7 @@
 require.config({
     // Paths that contain the various different javascript files.
+    "deps": ["init"],
     "paths": {
-        "lib": "./lib",
         "utils/dates": "./lib/utils/dates",
         "utils/strings": "./lib/utils/strings",
         "utils/numbers": "./lib/utils/numbers",
@@ -19,6 +19,9 @@ require.config({
 	// The shim config allows us to configure dependencies for
 	// scripts that do not call define() to register a module
 	"shim": {
+        "jquery": {
+            "exports": "$"
+        },
 		"underscore": {
 			"exports": '_'
 		},
@@ -49,6 +52,21 @@ define([
             "collection": new Packages()
         });
         app.router = new Router();
+        // hijack all relative links for pushState enabled browsers
+        if (Backbone.history && Backbone.history._hasPushState) {
+            $(document).on("click", "a", function (event) {
+                // Get the anchor href and protcol
+                var href = $(this).attr("href");
+                var protocol = this.protocol + "//";
+                // Ensure the protocol is not part of URL, meaning its relative.
+                // Stop the event bubbling to ensure the link will not cause a page refresh.
+                if (href.slice(0, protocol.length) !== protocol) {
+                    event.preventDefault();
+                    app.router.navigate(href, true);
+                }
+            });
+
+        }
     });
 });
 

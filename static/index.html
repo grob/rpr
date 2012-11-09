@@ -4,21 +4,31 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>RingoJS Package Registry</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,600&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="/css/reset.css" />
     <link rel="stylesheet" type="text/css" media="screen, handheld" title="CSS Stylesheet" href="/css/main.css" />
-    <script type="text/javascript" src="/js/lib/require.js" data-main="/js/init.js"></script>
+    <script type="text/javascript" src="/js/lib/require.js" data-main="/js/init.built"></script>
 </head>
 <body>
 
     <header>
-        <a href="/"><h1><span class="c1">ringo</span><span class="c2">js</span> package registry</h1></a>
+        <nav class="navigation">
+            <h1>
+                <a href="/"><img src="/images/ringojs-logo.png" alt="RingoJS" title="Home" /></a>
+            </h1>
+            <ul>
+                <li><a href="/help">Help</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <div id="main">
+    <div class="main">
         <input id="search" type="text" placeholder="Search" />
         <div id="list">
             <ul id="result"></ul>
-            <a id="loadmore" href="#">more&hellip;</a>
+            <a id="loadmore" href="#">More packages&hellip;</a>
         </div>
     </div>
 
@@ -26,179 +36,178 @@
         <h2><a href="/packages/{{name}}">{{name}}</a> {{latest}}</h2>
         <p>{{description}}</p>
         <ul class="menu">
-            <li data-display=".details">Details</li>
-            <li data-display=".versions">Versions</li>
+            <li class="details">Details</li>
+            <li class="versions">Versions</li>
         </ul>
-        <dl class="details clearer">
-            <dt>Keywords</dt>
-            <dd>
-                {{#keywords}}
-                <a href="/search/{{.}}">{{.}}</a>
-                {{/keywords}}
-            </dd>
-            {{#author}}
-            {{#engines}}
-                <dt>Engines</dt>
-                <dd>
-                    <ul>
-                    {{#engines}}
-                    <li>{{name}} ({{version}})</li>
-                    {{/engines}}
-                    </ul>
-                </dd>
-            {{/engines}}
-            <dt>Dependencies</dt>
+        <div class="tab"></div>
+    </script>
+
+    <script id="tmpl-details" type="text/html">
+        <dt>Keywords</dt>
+        <dd>
+            {{#keywords}}
+            <a href="/search/{{.}}">{{.}}</a>
+            {{/keywords}}
+        </dd>
+        {{#author}}
+        {{#engines}}
+            <dt>Engines</dt>
             <dd>
                 <ul>
-                {{#dependencies}}
-                    <li><a href="/download/{{name}}">{{name}}</a> {{version}}</li>
-                {{/dependencies}}
-                {{^dependencies}}
-                    <li>none</li>
-                {{/dependencies}}
+                {{#engines}}
+                <li>{{name}} ({{version}})</li>
+                {{/engines}}
                 </ul>
             </dd>
-            <dt>Author</dt>
+        {{/engines}}
+        <dt>Dependencies</dt>
+        <dd>
+            <ul>
+            {{#dependencies}}
+                <li><a href="/packages/{{name}}">{{name}}</a> {{version}}</li>
+            {{/dependencies}}
+            {{^dependencies}}
+                <li>none</li>
+            {{/dependencies}}
+            </ul>
+        </dd>
+        <dt>Author</dt>
+        <dd>
+            {{#web}}
+                <a href="{{web}}">{{name}}</a>
+            {{/web}}
+            {{^web}}
+                {{name}}
+            {{/web}}
+        </dd>
+        {{/author}}
+        {{#homepage}}
+            <dt>Website</dt>
+            <dd><a href="{{homepage}}">{{homepage}}</a></dd>
+        {{/homepage}}
+        {{#repositories}}
+            <dt>Repositories</dt>
             <dd>
+                <ul>
+                {{#repositories}}
+                <li>{{type}}: <a href="{{url}}{{path}}">{{url}}{{path}}</a></li>
+                {{/repositories}}
+                </ul>
+            </dd>
+        {{/repositories}}
+        {{#licenses}}
+            <dt>Licenses</dt>
+            <dd>
+                <ul>
+                {{#licenses}}
+                <li><a href="{{url}}">{{type}}</a></li>
+                {{/licenses}}
+                </ul>
+            </dd>
+        {{/licenses}}
+        <dt>Last modified</dt>
+        <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
+        <dt>Maintainers</dt>
+        <dd>
+            <ul>
+            {{#maintainers}}
+                <li>{{#web}}
+                    <a href="{{web}}">
+                {{/web}}
+                {{name}}
                 {{#web}}
+                    </a>
+                {{/web}}
+                </li>
+            {{/maintainers}}
+            {{^maintainers}}
+                <li>-</li>
+            {{/maintainers}}
+            </ul>
+        </dd>
+        <dt>Contributors</dt>
+        <dd>
+            <ul>
+            {{#contributors}}
+                <li>{{#web}}
                     <a href="{{web}}">{{name}}</a>
                 {{/web}}
                 {{^web}}
                     {{name}}
                 {{/web}}
-            </dd>
-            {{/author}}
-            {{#homepage}}
-                <dt>Website</dt>
-                <dd><a href="{{homepage}}">{{homepage}}</a></dd>
-            {{/homepage}}
-            {{#repositories}}
-                <dt>Repositories</dt>
-                <dd>
-                    <ul>
-                    {{#repositories}}
-                    <li>{{type}}: <a href="{{url}}{{path}}">{{url}}{{path}}</a></li>
-                    {{/repositories}}
-                    </ul>
-                </dd>
-            {{/repositories}}
-            {{#licenses}}
-                <dt>Licenses</dt>
-                <dd>
-                    <ul>
-                    {{#licenses}}
-                    <li><a href="{{url}}">{{type}}</a></li>
-                    {{/licenses}}
-                    </ul>
-                </dd>
-            {{/licenses}}
-            <dt>Last modified</dt>
-            <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
-            <dt>Maintainers</dt>
-            <dd>
-                <ul>
-                {{#maintainers}}
-                    <li>{{#web}}
-                        <a href="{{web}}">
-                    {{/web}}
-                    {{name}}
-                    {{#web}}
-                        </a>
-                    {{/web}}
-                    </li>
-                {{/maintainers}}
-                {{^maintainers}}
-                    <li>-</li>
-                {{/maintainers}}
-                </ul>
-            </dd>
-            <dt>Contributors</dt>
-            <dd>
-                <ul>
-                {{#contributors}}
-                    <li>{{#web}}
-                        <a href="{{web}}">{{name}}</a>
-                    {{/web}}
-                    {{^web}}
-                        {{name}}
-                    {{/web}}
-                    </li>
-                {{/contributors}}
-                {{^contributors}}
-                    <li>-</li>
-                {{/contributors}}
-                </ul>
-            </dd>
-        </dl>
-        <dl class="versions clearer">
-            {{#versions}}
-                <dt>{{version}}</dt>
-                <dd>
-                    <dl>
-                        <dt>Published</dt>
-                        <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
-                        <dt>Dependencies</dt>
-                        <dd>
-                            <ul>
-                            {{#dependencies}}
-                                <li><a href="/download/{{name}}">{{name}}</a> {{version}}</li>
-                            {{/dependencies}}
-                            {{^dependencies}}
-                                <li>none</li>
-                            {{/dependencies}}
-                            </ul>
-                        </dd>
-                        {{#engines}}
-                            <dt>Engines</dt>
-                            <dd>
-                                <ul>
-                                {{#engines}}
-                                <li>{{name}} ({{version}})</li>
-                                {{/engines}}
-                                </ul>
-                            </dd>
-                        {{/engines}}
-                        <dt>Download</dt>
-                        <dd><a href="/download/{{filename}}">{{filename}}</a> ({{#formatFileSize}}{{filesize}}{{/formatFileSize}})</dd>
-                        {{#repositories}}
-                            <dt>Repositories</dt>
-                            <dd>
-                                <ul>
-                                {{#repositories}}
-                                <li>{{type}}: <a href="{{url}}{{path}}">{{url}}{{path}}</a></li>
-                                {{/repositories}}
-                                </ul>
-                            </dd>
-                        {{/repositories}}
-                        {{#licenses}}
-                            <dt>Licenses</dt>
-                            <dd>
-                                <ul>
-                                {{#licenses}}
-                                <li><a href="{{url}}">{{type}}</a></li>
-                                {{/licenses}}
-                                </ul>
-                            </dd>
-                        {{/licenses}}
-                        <dt class="checksums clearer">Checksums</dt>
-                        <dd class="checksums clearer">
-                            <dl>
-                                <dt>md5</dt>
-                                <dd>{{checksums.md5}}</dd>
-                                <dt>sha1</dt>
-                                <dd>{{checksums.sha1}}</dd>
-                                <dt>sha256</dt>
-                                <dd>{{checksums.sha256}}</dd>
-                            </dl>
-                        </dd>
-                    </dl>
-                </dd>
-            {{/versions}}
-        </dl>
-        <div class="clearer"></div>
+                </li>
+            {{/contributors}}
+            {{^contributors}}
+                <li>-</li>
+            {{/contributors}}
+            </ul>
+        </dd>
     </script>
 
-    <script id="tmpl-version" type="text/html">
+    <script id="tmpl-versions" type="text/html">
+        {{#versions}}
+            <dt>{{version}}</dt>
+            <dd>
+                <dl>
+                    <dt>Published</dt>
+                    <dd>{{#formatDate}}{{modified}}{{/formatDate}}</dd>
+                    <dt>Dependencies</dt>
+                    <dd>
+                        <ul>
+                        {{#dependencies}}
+                            <li><a href="/packages/{{name}}">{{name}}</a> {{version}}</li>
+                        {{/dependencies}}
+                        {{^dependencies}}
+                            <li>none</li>
+                        {{/dependencies}}
+                        </ul>
+                    </dd>
+                    {{#engines}}
+                        <dt>Engines</dt>
+                        <dd>
+                            <ul>
+                            {{#engines}}
+                            <li>{{name}} ({{version}})</li>
+                            {{/engines}}
+                            </ul>
+                        </dd>
+                    {{/engines}}
+                    <dt>Download</dt>
+                    <dd><a href="/download/{{filename}}">{{filename}}</a> ({{#formatFileSize}}{{filesize}}{{/formatFileSize}})</dd>
+                    {{#repositories}}
+                        <dt>Repositories</dt>
+                        <dd>
+                            <ul>
+                            {{#repositories}}
+                            <li>{{type}}: <a href="{{url}}{{path}}">{{url}}{{path}}</a></li>
+                            {{/repositories}}
+                            </ul>
+                        </dd>
+                    {{/repositories}}
+                    {{#licenses}}
+                        <dt>Licenses</dt>
+                        <dd>
+                            <ul>
+                            {{#licenses}}
+                            <li><a href="{{url}}">{{type}}</a></li>
+                            {{/licenses}}
+                            </ul>
+                        </dd>
+                    {{/licenses}}
+                    <dt class="checksums">Checksums</dt>
+                    <dd class="checksums">
+                        <dl>
+                            <dt>md5</dt>
+                            <dd>{{checksums.md5}}</dd>
+                            <dt>sha1</dt>
+                            <dd>{{checksums.sha1}}</dd>
+                            <dt>sha256</dt>
+                            <dd>{{checksums.sha256}}</dd>
+                        </dl>
+                    </dd>
+                </dl>
+            </dd>
+        {{/versions}}
     </script>
 </body>
 </html>

@@ -1,92 +1,152 @@
-body {
-    font-family: Arial, Helvetica, sans-serif;
+body, html {
+    margin: 0;
+    padding: 0;
     font-size: 16px;
 }
+
+body {
+    font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+    color: #222;
+}
+
 a {
-    color: #32739c;
+    color: #3879ba;
     text-decoration: none;
 }
+
+a:focus,
 a:hover {
+    color: #5393cf;
     text-decoration: underline;
 }
-.clearer {
-    clear: left;
-    float: none;
+
+a img {
+    border: 0;
+}
+
+a[href^="http://"] {
+    background: url('/images/external.svg') center right no-repeat;
+    padding-right: 14px;
+}
+
+/* Don't mark github links as external */
+a[href^="http://github.com/ringo/"],
+a[href^="http://www.github.com/ringo/"],
+a[href^="http://github.com/downloads/ringo/"],
+a[href^="http://www.github.com/downloads/ringo/"] {
+    background: none;
+    padding-right: 0;
 }
 
 header {
-    padding: 10px 20px;
-}
-header h1 {
-    font-size: 1.4em;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #7b8599;
-    text-shadow: 0px 1px 1px #adbbd9;
-}
-header h1 .c1 {
-    color: #2d7fc9;
-}
-header h1 .c2 {
-    color: #495766;
+    display: block;
+    padding-top: 12px;
+    background: #c1ccd1;
+    font-family: 'Source Sans Pro', sans-serif;
+    overflow: hidden;
+    border-bottom: 1px solid #bfbfbf;
 }
 
-#main {
-    margin: 20px;
+header a {
+    color: #222;
+    text-decoration: none;
 }
+
+header nav a:focus,
+header nav a:hover {
+    color: #222;
+}
+
+header nav {
+    margin: 0 auto;
+    max-width: 940px;
+}
+
+header nav ul {
+    padding: 8px 0 1px 0;
+    float: right;
+}
+
+header nav li {
+    float: left;
+    list-style: none;
+    font-size: 19px;
+    margin-left: 2em;
+}
+
+header h1 {
+    margin: 3px 0 0 0;
+    display: inline;
+    float: left;
+}
+
+header h1 img {
+    display: inline;
+}
+
+header h1 a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.main {
+  clear: both;
+  overflow: hidden;
+  background: #fff;
+  margin: 9px auto 60px;
+  max-width: 940px;
+}
+
 #result {
     margin-top: 10px;
     width: 80%;
 }
+
 #result > li {
-    padding: 10px;
-    border-top: 1px solid #c8e8ff;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
     font-size: 0.9em;
     cursor: pointer;
 }
+
 #result > li:first-child {
-    border-top: none;
+    border-top: none !important;
 }
+#result > li:last-child {
+    border-bottom: none;
+}
+
 #result > li:hover {
-    box-shadow: -1px 1px 2px #495766;
     border-top-color: transparent;
+    background-color: #fafafa;
 }
+
 #result > li.selected {
-    box-shadow: -1px 1px 2px #7b8599;
-    background-color: #f8faff;
     border-top-color: transparent;
+    background-color: #fafafa;
 }
+
 #result > li.pageborder {
-    border-color: #999;
+    border-top: 1px solid #999;
 }
+
 #result > li > h2 {
     font-size: 1.1em;
     font-weight: bold;
     margin-bottom: 3px;
 }
-#result > li > p {
-    margin-bottom: 5px;
-}
+
 #loadmore {
     display: none;
-    margin: 20px 0 0 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 2px;
-    border-color: #e9e9e9;
-    background-color: #f2f2f2;
-    padding: 4px 10px;
+    margin-top: 20px;
     font-size: 0.8em;
+    font-weight: bold;
 }
-#loadmore:hover {
-    color: black;
-    border-color: #999;
-    text-decoration: none;
-}
+
 #loadmore.active {
     padding-right: 25px;
-    background-color: #f2f2f2;
     background-image: url("../images/loader.gif");
-    background-position: 95% 4px;
+    background-position: 95% 2px;
     background-repeat: no-repeat;
 }
 
@@ -95,91 +155,104 @@ header h1 .c2 {
     border-radius: 3px;
     padding: 3px 30px 3px 3px;
     width: 300px;
-    margin-bottom: 10px;
     background-color: transparent;
+    font-size: 1em;
 }
+
 #search.active {
     background-image: url("../images/loader.gif");
-    background-position: 99% 2px;
+    background-position: 99% 5px;
     background-repeat: no-repeat;
 }
 
 /*** sections ***/
 ul.menu {
     overflow: auto;
-    margin-left: 10px;
+    margin-top: 2px;
+    margin-bottom: 5px;
 }
+
 ul.menu li {
     cursor: pointer;
     color: #999;
     float: left;
-    padding: 2px 5px 2px 5px;
-    border-style: solid;
-    border-width: 1px 1px 0 1px;
-    border-color: transparent;
-    border-radius: 3px 3px 0 0;
+    padding-right: 5px;
 }
+
 ul.menu li:before {
     content: "\0025ba\0000a0";
 }
+
 ul.menu li.expanded {
     color: #505466;
-    border-color: #6d7d8a;
-    background-color: #f8faff;
 }
+
 ul.menu li.expanded:before {
     content: "\0025bc\0000a0";
 }
+
 dl.versions, dl.details {
-    margin: -1px -10px 5px -10px;
-    display: none;
+    clear: left;
     overflow: auto;
-    padding: 10px 10px 0 10px;
-    border-top: 1px solid #6d7d8a;
 }
+
 dl.expanded {
     display: block;
 }
+
 dl dt {
     clear: left;
     float: left;
     color: #999;
 }
+
 dl dt:after {
     content: ":";
 }
+
 dl dd {
     float: left;
     margin: 0 0 2px 10px;
 }
+
 dl dd dl {
     margin-top: 10px;
 }
+
 dl dd dl:first-child {
-    margin-top: 0;11
+    margin-top: 0;
+    11
 }
+
 dl.versions > dt {
     color: black;
     font-weight: bold;
 }
+
 dl.versions > dt:after {
     content: "";
 }
 
 dl dt.checksums:before {
     content: "\0025ba\0000a0";
+    clear: left;
 }
+
 dl dt.checksums.expanded {
     color: #666666;
 }
+
 dl dt.checksums.expanded:before {
     content: "\0025bc\0000a0";
 }
+
 dl dt.checksums:after {
     content: "";
 }
+
 dl dd.checksums {
     display: none;
     overflow: auto;
     margin: 2px 0 10px 20px;
+    clear: left;
 }

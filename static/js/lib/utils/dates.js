@@ -1,6 +1,6 @@
-define(function(require, exports, module) {
-
-    var strings = require("./strings");
+define([
+    "./strings"
+], function(strings) {
 
     var MONTH_NAMES = {
         "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -113,10 +113,9 @@ define(function(require, exports, module) {
      * @param {Date} date The date to format. Passing the milliseconds of a date
      * is also allowed for convenience
      * @param {String} pattern The formatting pattern
-     * @returns The formatted string
-     * @type String
+     * @returns {String} The formatted string
      */
-    exports.format = function(date, pattern) {
+    var format = function(date, pattern) {
         if (date == undefined) {
             return "";
         } else if (date.constructor !== Date) {
@@ -160,7 +159,7 @@ define(function(require, exports, module) {
      * 20120101 (robert@nomatic.org): modified to not overwrite Date.parse as the original
      *          library did.
      */
-    exports.parse = function(date) {
+    var parse = function(date) {
         var numericKeys = [ 1, 4, 5, 6, 7, 10, 11 ];
         var struct, minutesOffset = 0;
 
@@ -192,5 +191,9 @@ define(function(require, exports, module) {
         }
     };
 
+    return {
+        "format": format,
+        "parse": parse
+    };
 
 });

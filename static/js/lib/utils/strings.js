@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function() {
 
     /**
      * Fills a string with another string up to a desired length
@@ -9,7 +9,7 @@ define(function(require, exports, module) {
      * a negative number means left, 0 means both, a positive number means right
      * @returns String the resulting string
      */
-    exports.pad = function(string, fill, length, mode) {
+    var pad = function(string, fill, length, mode) {
         if (fill == null || length == null) {
             return string;
         }
@@ -37,11 +37,16 @@ define(function(require, exports, module) {
         return list.join("");
     };
 
-    exports.truncate = function(string, length, suffix) {
+    var truncate = function(string, length, suffix) {
         if (string.length <= length) {
             return string;
         }
         return string.substring(0, length) + (suffix || "...");
+    };
+
+    return {
+        "pad": pad,
+        "truncate": truncate
     };
 
 });

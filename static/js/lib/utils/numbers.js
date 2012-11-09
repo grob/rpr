@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function() {
 
     var UNITS = ["bytes", "kB", "MB", "GB", "TB"];
 
@@ -8,12 +8,16 @@ define(function(require, exports, module) {
      * @returns The human readable file size
      * @type String
      */
-    exports.formatFileSize = function(bytes) {
+    var formatFileSize = function(bytes) {
         if (bytes > 0) {
             var e = Math.floor(Math.log(bytes) / Math.log(1024));
             return [(bytes / Math.pow(1024, e)).toFixed(1), UNITS[e]].join(" ");
         }
         return [bytes, UNITS[0]].join(" ");
+    };
+
+    return {
+        "formatFileSize": formatFileSize
     };
 
 });
