@@ -126,6 +126,7 @@ Version.prototype.serialize = function() {
         "keywords": descriptor.keywords,
         "latest": pkg.latestVersion.version,
         "filename": this.filename,
+        "filesize": this.filesize,
         "modified": this.modifytime.toISOString(),
         "homepage": descriptor.homepage,
         "implements": descriptor.implements,
