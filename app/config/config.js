@@ -7,6 +7,7 @@
  * @see main
  */
 var fs = require("fs");
+var system = require("system");
 
 module.exports = module.singleton("config", function() {
     var {Parser} = require("ringo/args");
