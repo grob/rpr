@@ -1,15 +1,21 @@
 var {Store} = require("ringo-sqlstore");
+var {ConnectionPool} = require("ringo-sqlstore/lib/sqlstore/connectionpool");
+var {Cache} = require("ringo-sqlstore/lib/sqlstore/cache");
+var config = require('../config/config');
 
-exports.store = module.singleton("store", function() {
-    var config = require('../config/config');
-    return new Store({
+var store = exports.store = new Store(module.singleton("connectionpool", function() {
+    return new ConnectionPool({
         "url": config.db.url,
         "driver": config.db.driver,
         "username": config.db.username,
         "password": config.db.password
-    }, {
-        "maxConnections": config.db.maxConnections || 100,
-        "cacheSize": config.db.cacheSize || 1000
     });
-});
+}));
 
+store.setEntityCache(module.singleton("entityCache", function() {
+    return new Cache(config.db.cacheSize);
+}));
+
+store.setQueryCache(module.singleton("queryCache", function() {
+    return new Cache(config.db.cacheSize);
+}));
