@@ -64,7 +64,7 @@ var createDocument = exports.createDocument = function(pkg) {
 
 exports.search = function(q, length, offset) {
     var query = null;
-    var sort = new Sort();
+    var sort = new Sort(SortField.FIELD_SCORE);
     if (typeof(q) === "string" && q.length > 0) {
         var parser = new MultiFieldQueryParser(Version.LUCENE_35,
                  ["name", "name_ngrams", "description", "keyword", "author", "maintainer", "contributor"],
