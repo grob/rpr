@@ -6,6 +6,8 @@ var index = require("./index");
 var app = exports.app = new Application();
 app.configure("gzip", "etag", "requestlog", "error", "notfound", "params",
         "upload", "mount", "route");
+app.configure("static");
+app.static(module.resolve("../static/"), "index.html");
 
 // mount apps
 app.mount("/api", module.resolve("./api/main"));
