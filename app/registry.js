@@ -282,7 +282,7 @@ function storeAuthorRelations(pkg, collection, authors, role) {
     }).forEach(function(author) {
         var relation = RelPackageAuthor.get(pkg, author, role);
         relation.remove();
-        collection.remove(author);
+        collection.invalidate();
         log.info("Removed", author.name, "as", role, "from", pkg.name);
     })
     return;
