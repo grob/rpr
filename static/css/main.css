@@ -24,7 +24,7 @@ a img {
     border: 0;
 }
 
-a[href^="http://"] {
+.main a[href^="http://"] {
     background: url('/images/external.svg') center right no-repeat;
     padding-right: 14px;
 }
@@ -65,6 +65,7 @@ header nav {
 header nav ul {
     padding: 8px 0 1px 0;
     float: right;
+    margin: 16px 0;
 }
 
 header nav li {
@@ -75,13 +76,13 @@ header nav li {
 }
 
 header h1 {
-    margin: 3px 0 0 0;
+    margin: 3px 0 11px 0;
     display: inline;
     float: left;
 }
 
 header h1 img {
-    display: inline;
+    display: block;
 }
 
 header h1 a {
@@ -93,7 +94,7 @@ header h1 a {
   clear: both;
   overflow: hidden;
   background: #fff;
-  margin: 9px auto 60px;
+  margin: 37px auto 60px;
   max-width: 940px;
 }
 
