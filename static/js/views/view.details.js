@@ -28,7 +28,7 @@ define([
         "className": "details",
         "template": hogan.compile(document.getElementById("tmpl-details").innerHTML),
         "render": function() {
-            var ctx = _.extend({}, this.model.toJSON(), lambdas);
+            var ctx = $.extend(true, {}, this.model.toJSON(), lambdas);
             ctx.dependencies = convert(ctx.dependencies);
             ctx.engines = convert(ctx.engines);
             if (ctx.engines != null) {

@@ -43,7 +43,6 @@ define([
     };
 
     ListView.prototype.loadMore = function(event) {
-        event.preventDefault();
         this.$loadmore.addClass("active");
         this.collection.fetch({
             "add": true,
@@ -51,6 +50,7 @@ define([
                 "o": this.collection.length
             })
         });
+        return false;
     };
 
     ListView.prototype.getUrlParameters = function() {

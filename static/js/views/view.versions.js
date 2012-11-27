@@ -36,7 +36,7 @@ define([
             "click .checksums": "toggleChecksums"
         },
         "render": function() {
-            var ctx = _.extend({}, this.model.toJSON(), lambdas);
+            var ctx = $.extend(true, {}, this.model.toJSON(), lambdas);
             _.each(ctx.versions, function(version) {
                 version.dependencies = convert(version.dependencies);
                 version.engines = convert(version.engines);

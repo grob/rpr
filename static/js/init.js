@@ -60,7 +60,8 @@ define([
                 var protocol = this.protocol + "//";
                 // Ensure the protocol is not part of URL, meaning its relative.
                 // Stop the event bubbling to ensure the link will not cause a page refresh.
-                if (href.slice(0, protocol.length) !== protocol) {
+                if (href.slice(0, protocol.length) !== protocol &&
+                        href.indexOf("/download/") < 0) {
                     event.preventDefault();
                     app.router.navigate(href, true);
                 }
