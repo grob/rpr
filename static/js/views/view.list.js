@@ -44,9 +44,13 @@ define([
     };
 
     ListView.prototype.loadMore = function(event) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
         this.$loadmore.addClass("active");
         this.collection.fetch({
-            "add": true,
+            "update": true,
+            "remove": false,
+            "merge": false,
             "data": _.extend(this.getUrlParameters(), {
                 "o": this.collection.length
             })

@@ -44,13 +44,11 @@
     <script id="tmpl-details" type="text/html">
         <dt>Keywords</dt>
         <dd>
-            {% if keywords %}
-                {% for keyword in keywords %}
-                    <a href="/search/{{ keyword | url_encode }}">{{ keyword }}</a>
-                {% endfor %}
-            {% endif %}
+            {% for keyword in keywords %}
+                <a href="/search/{{ keyword | url_encode }}">{{ keyword }}</a>
+            {% endfor %}
         </dd>
-        {% if engines %}
+        {% if engines|length > 0 %}
             <dt>Engines</dt>
             <dd>
                 <ul>
@@ -99,17 +97,17 @@
             <dd>
                 <ul>
                 {% for license in licenses %}
-                <li><a href="{{ license.url }}">{{ license.type }}</a></li>
+                    <li><a href="{{ license.url }}">{{ license.type }}</a></li>
                 {% endfor %}
                 </ul>
             </dd>
         {% endif %}
         <dt>Last modified</dt>
         <dd>{{ modified | date("d. M. Y, H:i") }}</dd>
-        <dt>Maintainers</dt>
-        <dd>
-            <ul>
-            {% if maintainers|length > 0 %}
+        {% if maintainers|length > 0 %}
+            <dt>Maintainers</dt>
+            <dd>
+                <ul>
                 {% for maintainer in maintainers %}
                     <li>
                         {% if maintainer.web %}
@@ -119,15 +117,13 @@
                         {% endif %}
                     </li>
                 {% endfor %}
-            {% else %}
-                <li>none</li>
-            {% endif %}
-            </ul>
-        </dd>
-        <dt>Contributors</dt>
-        <dd>
-            <ul>
-            {% if contributors|length > 0 %}
+                </ul>
+            </dd>
+        {% endif %}
+        {% if contributors|length > 0 %}
+            <dt>Contributors</dt>
+            <dd>
+                <ul>
                 {% for contributor in contributors %}
                     <li>
                         {% if contributor.web %}
@@ -137,11 +133,9 @@
                         {% endif %}
                     </li>
                 {% endfor %}
-            {% else %}
-                <li>none</li>
-            {% endif %}
-            </ul>
-        </dd>
+                </ul>
+            </dd>
+        {% endif %}
     </script>
 
     <script id="tmpl-versions" type="text/html">
