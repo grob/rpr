@@ -2,9 +2,6 @@ require.config({
     // Paths that contain the various different javascript files.
     "deps": ["init"],
     "paths": {
-        "utils/dates": "./lib/utils/dates",
-        "utils/strings": "./lib/utils/strings",
-        "utils/numbers": "./lib/utils/numbers",
         "models": "./models",
         "collections": "./collections",
         "views": "./views",
@@ -13,7 +10,7 @@ require.config({
         "jquery": "./lib/jquery",
         "underscore": "./lib/lodash",
         "backbone": "./lib/backbone",
-        "hogan": "./lib/hogan"
+        "swig": "./lib/swig"
     },
 
 	// The shim config allows us to configure dependencies for
@@ -32,8 +29,8 @@ require.config({
 			],
 			"exports": "Backbone"
         },
-        "hogan": {
-            "exports": "Hogan"
+        "swig": {
+            "exports": "swig"
         }
 	}
 });

@@ -1,7 +1,8 @@
 define([
+    "underscore",
     "backbone",
     "app"
-], function(Backbone, app) {
+], function(_, Backbone, app) {
 
     var timeoutId = null;
 

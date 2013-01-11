@@ -2,15 +2,14 @@ define([
     "underscore",
     "backbone",
     "app",
-    "hogan",
+    "swig",
     "views/view.details",
-    "views/view.versions",
-    "utils/dates"
-], function(_, Backbone, app, hogan, DetailsView, VersionsView, dates) {
+    "views/view.versions"
+], function(_, Backbone, app, swig, DetailsView, VersionsView) {
 
     var PackageView = Backbone.View.extend({
         "tagName": "li",
-        "template": hogan.compile(document.getElementById("tmpl-package").innerHTML),
+        "template": swig.compile(document.getElementById("tmpl-package").innerHTML),
         "events": {
             "click .menu li.details": "toggleDetails",
             "click .menu li.versions": "toggleVersions",
@@ -23,7 +22,7 @@ define([
     });
 
     PackageView.prototype.render = function() {
-        this.$el.append(this.template.render(this.model.toJSON()));
+        this.$el.append(this.template(this.model.toJSON()));
         return this;
     };
 

@@ -1,9 +1,10 @@
 define([
+    "underscore",
     "backbone",
     "app",
     "views/view.package",
     "models/model.package"
-], function(Backbone, app, PackageView, Package) {
+], function(_, Backbone, app, PackageView, Package) {
 
     var ListView = Backbone.View.extend({
         "el": "#list",

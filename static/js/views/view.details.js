@@ -1,40 +1,20 @@
 define([
     "underscore",
     "backbone",
-    "hogan",
-    "utils/dates"
-], function(_, Backbone, hogan, dates) {
-
-    // lambdas needed for rendering the template
-    var lambdas = {
-        "formatDate": function() {
-            return function(str, render) {
-                return dates.format(dates.parse(render(str)), "dd.MM.yyyy HH:mm");
-            }
-        }
-    };
-
-    var convert = function(obj) {
-        return _.map(_.keys(obj), function(key) {
-            return {
-                "name": key,
-                "version": obj[key]
-            };
-        });
-    };
+    "swig"
+], function(_, Backbone, swig) {
 
     var DetailsView = Backbone.View.extend({
         "tagName": "dl",
         "className": "details",
-        "template": hogan.compile(document.getElementById("tmpl-details").innerHTML),
+        "template": swig.compile(document.getElementById("tmpl-details").innerHTML),
         "render": function() {
-            var ctx = $.extend(true, {}, this.model.toJSON(), lambdas);
-            ctx.dependencies = convert(ctx.dependencies);
-            ctx.engines = convert(ctx.engines);
+            var ctx = this.model.toJSON();
             if (ctx.engines != null) {
                 ctx.ringoVersion = ctx.engines.ringojs;
             }
-            this.$el.html(this.template.render(ctx));
+            console.log(ctx);
+            this.$el.html(this.template(ctx));
             return this;
         }
     });
