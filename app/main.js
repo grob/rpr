@@ -32,8 +32,7 @@ var start = function() {
 var stop = function() {
     httpServer.stop();
     httpServer.destroy();
-    store.connectionPool.stopScheduler();
-    store.connectionPool.closeConnections();
+    store.connectionPool.close();
     log.info("Stopped application");
 };
 

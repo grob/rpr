@@ -1,6 +1,6 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
-var response = require("./utils/response");
+var response = require("ringo/jsgi/response");
 var index = require("./index");
 
 var app = exports.app = new Application();
@@ -23,7 +23,7 @@ app.get("/packages*?", function(request) {
 
 app.get("/_rebuildIndex", function() {
     index.rebuild();
-    return response.ok({
+    return response.json({
         "message": "Done"
     });
 });

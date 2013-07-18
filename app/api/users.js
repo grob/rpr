@@ -1,7 +1,7 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 
-var response = require("../utils/response");
+var response = require("ringo/jsgi/response");
 var {AuthenticationError} = require("../errors");
 var {User} = require("../model/user");
 var registry = require("../registry");
@@ -15,12 +15,12 @@ app.configure("route");
  */
 app.get("/:username", function(request, username) {
     if (User.getByName(username) != null) {
-        return response.ok(true);
+        return response.json(true);
     }
     log.info("User", username, "not found");
-    return response.notfound({
+    return response.json({
         "message": "User '" + username + "' does not exist"
-    });
+    }).notfound();
 });
 
 /**
@@ -29,12 +29,12 @@ app.get("/:username", function(request, username) {
 app.get("/:username/salt", function(request, username) {
     var user = User.getByName(username);
     if (user != null) {
-        return response.ok(user.salt);
+        return response.json(user.salt);
     }
     log.info("Unknown user", username);
-    return response.notfound({
+    return response.json({
         "message": "Unknown user"
-    });
+    }).notfound();
 });
 
 /**
@@ -44,27 +44,27 @@ app.post("/:username/reset", function(request, username) {
     var user = User.getByName(username);
     var email = request.postParams.email;
     if (user === null) {
-        return response.notfound({
+        return response.json({
             "message": "Unknown user"
-        });
+        }).notfound();
     }
     try {
         registry.initPasswordReset(user, email);
         log.info("Sent password reset email to", email);
-        return response.ok({
+        return response.json({
             "message": "An email has been sent to " + email +
                     ". Please follow the instructions therein to reset your password"
         });
     } catch (e if e instanceof AuthenticationError) {
         log.info("Authentication failure of", username);
-        return response.forbidden({
+        return response.json({
             "message": e.message
-        });
+        }).forbidden();
     } catch (e) {
         log.error(e);
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     }
 });
 
@@ -76,26 +76,26 @@ app.post("/:username/password", function(request, username) {
     var token = request.postParams.token;
     var password = request.postParams.password;
     if (user === null) {
-        return response.notfound({
+        return response.json({
             "message": "Unknown user"
-        });
+        }).notfound();
     }
     try {
         registry.resetPassword(user, token, password);
         log.info("Reset password of", username, "using token", token);
-        return response.ok({
+        return response.json({
             "message": "Your password has been reset"
         });
     } catch (e if e instanceof AuthenticationError) {
         log.info("Authentication failure of", username);
-        return response.forbidden({
+        return response.json({
             "message": e.message
-        });
+        }).forbidden();
     } catch (e) {
         log.error(e);
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     }
 });
 
@@ -110,21 +110,21 @@ app.post("/", function(request) {
         if (typeof(value) !== "string" || value.length < 1) {
             log.info("Unable to create user account,", propName,
                     "is missing or invalid");
-            return response.error({
+            return response.json({
                 "message": "Missing or invalid " + propName
-            });
+            }).error();
         }
         props[propName] = value;
     }
     if (User.getByName(props.username) !== null) {
         log.info("User", props.username, "already exists");
-        return response.error({
+        return response.json({
             "message": "Please choose a different username"
-        });
+        }).error();
     }
     User.create(props.username, props.password, props.salt, props.email).save();
     log.info("Created new user account", props.username, "(" + props.email + ")");
-    return response.ok({
+    return response.json({
         "message": "The user '" + props.username + " has been registered"
     });
 });
@@ -140,18 +140,18 @@ app.post("/password", function(request) {
         user.password = newPassword;
         user.save();
         log.info("Changed password of", username);
-        return response.ok({
+        return response.json({
             "message": "Changed password"
         });
     } catch (e if e instanceof AuthenticationError) {
         log.info("Authentication failure of", username);
-        return response.forbidden({
+        return response.json({
             "message": e.message
-        });
+        }).forbidden();
     } catch (e) {
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     }
 });
 

@@ -2,7 +2,7 @@ var fs = require("fs");
 var log = require("ringo/logging").getLogger(module.id);
 
 var {Application} = require("stick");
-var response = require("../utils/response");
+var response = require("ringo/jsgi/response");
 var {AuthenticationError, RegistryError} = require("../errors");
 var {Package, Version, User, Author, RelPackageAuthor, LogEntry} =
         require("../model/all");
@@ -18,7 +18,7 @@ app.configure("route");
  * Returns the packages catalog
  */
 app.get("/", function(request) {
-    return response.ok(Package.all().map(function(pkg) {
+    return response.json(Package.all().map(function(pkg) {
         return pkg.serialize();
     }));
 });
@@ -29,12 +29,12 @@ app.get("/", function(request) {
 app.get("/:pkgName", function(request, pkgName, versionStr) {
     var pkg = Package.getByName(pkgName);
     if (pkg != null) {
-        return response.ok(pkg.serialize());
+        return response.json(pkg.serialize());
     }
     log.info("Package", pkgName, "not found");
-    return response.notfound({
+    return response.json({
         "message": "Package '" + pkgName + "' not found"
-    });
+    }).notfound();
 });
 
 /**
@@ -46,13 +46,13 @@ app.get("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
         var version = (versionStr == "latest") ? pkg.latestVersion :
             pkg.getVersion(semver.cleanVersion(versionStr));
         if (version != null) {
-            return response.ok(version.serialize());
+            return response.json(version.serialize());
         }
     }
     log.info("Version", versionStr, "of package", pkgName, "does not exist");
-    return response.notfound({
+    return response.json({
         "message": "Version " + versionStr + " of package '" + pkgName + "' not found"
-    });
+    }).notfound();
 });
 
 /**
@@ -62,27 +62,27 @@ app.del("/:pkgName", function(request, pkgName) {
     var [username, password] = utils.getCredentials(request);
     var pkg = Package.getByName(pkgName);
     if (pkg == null) {
-        return response.notfound({
+        return response.json({
             "message": "Package '" + pkgName + "' does not exist"
-        });
+        }).notfound();
     }
     try {
         var user = registry.authenticate(username, password);
         registry.unpublish(pkg, null, user);
         log.info("Unpublished", pkg.name);
-        return response.ok({
+        return response.json({
             "message": "Package " + pkg.name + " has been removed"
         });
     } catch (e if e instanceof AuthenticationError) {
         log.info("Authentication failure of", username);
-        return response.forbidden({
+        return response.json({
             "message": e.message
-        });
+        }).forbidden();
     } catch (e) {
         log.error(e);
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     }
 });
 
@@ -93,28 +93,28 @@ app.del("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     var [username, password] = utils.getCredentials(request);
     var pkg = Package.getByName(pkgName);
     if (pkg == null) {
-        return response.notfound({
+        return response.json({
             "message": "Version " + versionStr + " of package '" + pkgName + "' does not exist"
-        });
+        }).notfound();
     }
     try {
         var user = registry.authenticate(username, password);
         registry.unpublish(pkg, versionStr, user);
         log.info("Unpublished", versionStr, "of package", pkg.name);
-        return response.ok({
+        return response.json({
             "message": "Version " + versionStr + " of package " +
                 pkg.name + " has been removed"
         });
     } catch (e if e instanceof AuthenticationError) {
         log.info("Authentication failure of", username);
-        return response.forbidden({
+        return response.json({
             "message": e.message
-        });
+        }).forbidden();
     } catch (e) {
         log.error(e);
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     }
 });
 
@@ -137,20 +137,20 @@ app.post("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
         // move file to final destination
         registry.publishFile(tmpFilePath, filename);
         log.info("Published", descriptor.name, descriptor.version);
-        return response.ok({
+        return response.json({
             "message": "The package " + descriptor.name + " (v" +
                 descriptor.version + ") has been published"
         });
     } catch (e if e instanceof AuthenticationError) {
         log.info("Authentication failure of", username);
-        return response.forbidden({
+        return response.json({
             "message": e.message
-        });
+        }).forbidden();
     } catch (e) {
         log.error(e);
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     } finally {
         // cleanup
         if (tmpFilePath !== null && fs.exists(tmpFilePath)) {

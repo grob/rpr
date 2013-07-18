@@ -1,7 +1,7 @@
 var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var {Package, LogEntry} = require("../model/all");
-var response = require("../utils/response");
+var response = require("ringo/jsgi/response");
 var index = require("../index");
 
 var app = exports.app = new Application();
@@ -24,19 +24,19 @@ app.get("/updates", function(request) {
         try {
             date = new Date(sdf.parse(dateStr).getTime());
         } catch (e) {
-            return response.bad({
+            return response.json({
                 "message": "Invalid 'if-modified-since' header"
-            });
+            }).bad();
         }
         var updated = Package.getUpdatedSince(date).map(function(pkg) {
             return pkg.serialize();
         });
         var removed = LogEntry.getRemovedPackages(date);
         if (updated.length > 0 || removed.length > 0) {
-            return response.ok({
+            return response.json({
                 "updated": updated,
                 "removed": removed
-            });
+            }).ok();
         }
     }
     return response.notModified();
@@ -44,12 +44,13 @@ app.get("/updates", function(request) {
 
 app.get("/search", function(request) {
     try {
-        return response.ok(index.search(request.queryParams.q,
-                request.queryParams.l, request.queryParams.o));
+        var result = index.search(request.queryParams.q,
+                request.queryParams.l, request.queryParams.o);
+        return response.json(result);
     } catch (e) {
         log.error(e);
-        return response.error({
+        return response.json({
             "message": e.message
-        });
+        }).error();
     }
 });
