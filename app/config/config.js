@@ -8,105 +8,100 @@
  */
 var fs = require("fs");
 var system = require("system");
+var {Parser} = require("ringo/args");
+var config = require("gestalt").load(module.resolve("./config.json"));
 
-module.exports = module.singleton("config", function() {
-    var {Parser} = require("ringo/args");
-    var parser = new Parser();
-    parser.addOption("h", "homedir", "homedir", "Path to home directory");
-    var opts = parser.parse(system.args.slice(1));
+var parser = new Parser();
+parser.addOption("h", "homedir", "homedir", "Path to home directory");
+var opts = parser.parse(system.args.slice(1));
 
-    var homeDir = fs.resolve(opts.homedir || module.directory);
-    var configFile = fs.resolve(homeDir, "./config.json");
-    if (!fs.exists(configFile)) {
-        configFile = module.resolve("./config.json");
+var homeDir = fs.resolve(opts.homedir || module.directory);
+if (opts.homedir) {
+    homeDir = fs.resolve(opts.homedir);
+    var customConfigFile = fs.resolve(homeDir, "./config.json");
+    if (fs.exists(customConfigFile)) {
+        config.merge(customConfigFile);
     }
-    var config = {};
-    try {
-        config = JSON.parse(fs.read(configFile));
-    } catch (e) {
-        throw new Error("Invalid configuration file '" + configFile + "': " + e);
-    }
-    var logConfig = fs.resolve(homeDir, "./log4j.properties");
-    if (!fs.exists(logConfig)) {
-        logConfig = module.resolve("./log4j.properties");
-    }
+}
 
-    return {
-        /**
-         * The home directory of this application, containing the files
-         * `config.json`, `log4j.properties` and `users.json`.
-         * @name homeDir
-         * @type {String}
-         */
-        "homedir": homeDir,
+var logConfig = fs.resolve(homeDir, "./log4j.properties");
+if (!fs.exists(logConfig)) {
+    logConfig = module.resolve("./log4j.properties");
+}
 
-        /**
-         * The log4j properties used by this application
-         * @name logging
-         * @type {Resource}
-         */
-        "logging": getResource(fs.absolute(logConfig)),
+/**
+ * The home directory of this application, containing the files
+ * `config.json` and `log4j.properties`.
+ * @name homeDir
+ * @type {String}
+ */
+exports.homedir = homeDir;
 
-        /**
-         * An array containing the template paths used by this application
-         * @name templates
-         * @type {Array}
-         */
-        "templates": [
-            module.resolve("../templates"),
-            fs.resolve(homeDir, "./templates/")
-        ],
+/**
+ * The log4j properties used by this application
+ * @name logging
+ * @type {Resource}
+ */
+exports.logging = getResource(fs.absolute(logConfig));
 
-        /**
-         * The port to use for the HTTP server
-         * @name port
-         * @type {Number}
-         */
-        "port": config.httpPort,
+/**
+ * An array containing the template paths used by this application
+ * @name templates
+ * @type {Array}
+ */
+exports.templates = [
+    module.resolve("../templates"),
+    fs.resolve(homeDir, "./templates/")
+];
 
-        /**
-         * An object containing the database configuration properties
-         * @name db
-         * @type {Object}
-         */
-        "db": config.db,
+/**
+ * The port to use for the HTTP server
+ * @name port
+ * @type {Number}
+ */
+exports.port = config.get("httpPort");
 
-        /**
-         * The email address used as sender
-         * @name email
-         * @type String
-         */
-        "email": config.email,
+/**
+ * An object containing the database configuration properties
+ * @name db
+ * @type {Object}
+ */
+exports.db = config.get("db");
 
-        /**
-         * The SMTP configuration properties
-         * @name smtp
-         * @type Object
-         */
-        "smtp": config.smtp,
+/**
+ * The email address used as sender
+ * @name email
+ * @type String
+ */
+exports.email = config.get("email");
 
-        /**
-         * The temporary directory (relative to the `config.json` file
-         * specifying it)
-         * @name tmpDir
-         * @type String
-         */
-        "tmpDir": fs.resolve(homeDir, config.tmpDir),
+/**
+ * The SMTP configuration properties
+ * @name smtp
+ * @type Object
+ */
+exports.smtp = config.get("smtp");
 
-        /**
-         * The directory containing the published packages (relative to the
-         * `config.json` file specifying it)
-         * @name packageDir
-         * @type String
-         */
-        "downloadDir": fs.resolve(homeDir, config.downloadDir),
+/**
+ * The temporary directory (relative to the `config.json` file
+ * specifying it)
+ * @name tmpDir
+ * @type String
+ */
+exports.tmpDir = fs.resolve(homeDir, config.get("tmpDir"));
 
-        /**
-         * The directory containing the search index (relative to the
-         * `config.json` file specifying it)
-         * @name indexDir
-         * @type String
-         */
-        "indexDir": fs.resolve(homeDir, config.indexDir)
-    }
-});
+/**
+ * The directory containing the published packages (relative to the
+ * `config.json` file specifying it)
+ * @name packageDir
+ * @type String
+ */
+exports.downloadDir = fs.resolve(homeDir, config.get("downloadDir"));
+
+/**
+ * The directory containing the search index (relative to the
+ * `config.json` file specifying it)
+ * @name indexDir
+ * @type String
+ */
+exports.indexDir = fs.resolve(homeDir, config.get("indexDir"));

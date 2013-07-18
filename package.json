@@ -11,11 +11,12 @@
     },
     "contributors": [],
     "dependencies": {
-        "ringo-sqlstore": ">=0.1.1",
+        "ringo-sqlstore": ">=0.2",
         "lucindex": ">= 0.1.0",
         "stick": ">=0.1.0",
         "ringo-semver": ">=0.1.1",
-        "ringo-mail": ">= 0.4.0"
+        "ringo-mail": ">= 0.4.0",
+        "gestalt": "0.1"
     },
     "repositories": [{
         "type": "git",
