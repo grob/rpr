@@ -3,7 +3,7 @@ var {mimeType} = require("ringo/mime");
 var config = require("./config/config");
 var {Package} = require("./model/package");
 var semver = require("ringo-semver");
-var response = require("./utils/response");
+var response = require("ringo/jsgi/response");
 
 var app = exports.app = new Application();
 app.configure("route");
