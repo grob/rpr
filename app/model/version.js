@@ -93,8 +93,8 @@ Version.remove = function(pkg, version) {
         pkg.latestVersion = pkg.getVersion(versionNumbers[1]);
         pkg.save();
     }
-    pkg.versions.remove(version);
     version.remove();
+    pkg.versions.invalidate();
     return;
 };
 

@@ -374,9 +374,9 @@ function removeOwner(pkg, owner, user) {
     store.beginTransaction();
     try {
         RelPackageOwner.get(pkg, owner).remove();
-        pkg.owners.remove(owner);
         pkg.touch();
         pkg.save();
+        pkg.owners.invalidate();
         store.commitTransaction();
     } catch (e) {
         store.abortTransaction();
