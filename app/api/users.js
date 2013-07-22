@@ -125,7 +125,7 @@ app.post("/", function(request) {
     User.create(props.username, props.password, props.salt, props.email).save();
     log.info("Created new user account", props.username, "(" + props.email + ")");
     return response.json({
-        "message": "The user '" + props.username + " has been registered"
+        "message": "The user '" + props.username + "' has been registered"
     });
 });
 
