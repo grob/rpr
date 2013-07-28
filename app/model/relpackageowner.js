@@ -42,5 +42,5 @@ RelPackageOwner.get = function(pkg, owner) {
     return store.query("from RelPackageOwner as r where r.package = :pkgId and r.owner = :ownerId", {
         "pkgId": pkg._id,
         "ownerId": owner._id
-    })[0];
+    })[0] || null;
 };
