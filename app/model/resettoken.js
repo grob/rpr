@@ -26,6 +26,8 @@ var ResetToken = exports.ResetToken = store.defineEntity("ResetToken", {
     }
 });
 
+ResetToken.MAX_AGE = 86400000; // 1 day
+
 ResetToken.create = function(user) {
     return new ResetToken({
         "user": user,
@@ -49,7 +51,11 @@ ResetToken.getByUser = function(user) {
 
 ResetToken.prototype.evaluate = function(user, tokenStr) {
     var age = (new Date()).getTime() - this.createtime.getTime();
-    return age < 86400000 &&
-            user._id === this.user._id &&
+    return age < ResetToken.MAX_AGE &&
+            this.user.equals(user) &&
             this.hash === tokenStr;
+};
+
+ResetToken.prototype.equals = function(token) {
+    return this._key.equals(token._key);
 };
