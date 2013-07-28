@@ -130,8 +130,10 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
         pkg.save();
 
         // store relations between contributors/maintainers and the package
-        storeAuthorRelations(pkg, pkg.contributors, contributors, "contributor");
-        storeAuthorRelations(pkg, pkg.maintainers, maintainers, "maintainer");
+        storeAuthorRelations(pkg, pkg.contributors, contributors,
+                RelPackageAuthor.ROLE_CONTRIBUTOR);
+        storeAuthorRelations(pkg, pkg.maintainers, maintainers,
+                RelPackageAuthor.ROLE_MAINTAINER);
 
         // add a log entry
         LogEntry.create(logEntryType, descriptor.name, descriptor.version, user).save();

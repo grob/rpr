@@ -25,7 +25,15 @@ var RelPackageAuthor = exports.RelPackageAuthor = store.defineEntity("RelPackage
     }
 });
 
+RelPackageAuthor.ROLE_MAINTAINER = "maintainer";
+RelPackageAuthor.ROLE_CONTRIBUTOR = "contributor";
+RelPackageAuthor.ROLES = [RelPackageAuthor.ROLE_MAINTAINER,
+    RelPackageAuthor.ROLE_CONTRIBUTOR];
+
 RelPackageAuthor.create = function(pkg, author, role) {
+    if (!role || RelPackageAuthor.ROLES.indexOf(role) === -1) {
+        throw new Error("Missing or invalid role", role);
+    }
     return new RelPackageAuthor({
         "package": pkg,
         "author": author,

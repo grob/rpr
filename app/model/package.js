@@ -84,7 +84,7 @@ Package.remove = function(pkg) {
     pkg.owners.forEach(function(owner) {
         RelPackageOwner.get(pkg, owner).remove();
     });
-    for each (var key in ["contributor", "maintainer"]) {
+    for each (var key in RelPackageAuthor.ROLES) {
         pkg[key + "s"].forEach(function(author) {
             RelPackageAuthor.get(pkg, author, key).remove();
         });
