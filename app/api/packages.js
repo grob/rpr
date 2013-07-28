@@ -9,6 +9,7 @@ var {Package, Version, User, Author, RelPackageAuthor, LogEntry} =
 var registry = require("../registry");
 var utils = require("../utils/utils");
 var semver = require("ringo-semver");
+var cors = require("./cors");
 
 
 var app = exports.app = new Application();
@@ -18,7 +19,7 @@ app.configure("route");
  * Returns the packages catalog
  */
 app.get("/", function(request) {
-    return response.json(Package.all().map(function(pkg) {
+    return cors.json(Package.all().map(function(pkg) {
         return pkg.serialize();
     }));
 });
@@ -29,10 +30,10 @@ app.get("/", function(request) {
 app.get("/:pkgName", function(request, pkgName, versionStr) {
     var pkg = Package.getByName(pkgName);
     if (pkg != null) {
-        return response.json(pkg.serialize());
+        return cors.json(pkg.serialize());
     }
     log.info("Package", pkgName, "not found");
-    return response.json({
+    return cors.json({
         "message": "Package '" + pkgName + "' not found"
     }).notfound();
 });
@@ -46,11 +47,11 @@ app.get("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
         var version = (versionStr == "latest") ? pkg.latestVersion :
             pkg.getVersion(semver.cleanVersion(versionStr));
         if (version != null) {
-            return response.json(version.serialize());
+            return cors.json(version.serialize());
         }
     }
     log.info("Version", versionStr, "of package", pkgName, "does not exist");
-    return response.json({
+    return cors.json({
         "message": "Version " + versionStr + " of package '" + pkgName + "' not found"
     }).notfound();
 });

@@ -2,6 +2,7 @@ var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var {Package, LogEntry} = require("../model/all");
 var response = require("ringo/jsgi/response");
+var cors = require("./cors");
 var index = require("../index");
 
 var app = exports.app = new Application();
@@ -46,10 +47,10 @@ app.get("/search", function(request) {
     try {
         var result = index.search(request.queryParams.q,
                 request.queryParams.l, request.queryParams.o);
-        return response.json(result);
+        return cors.json(result);
     } catch (e) {
         log.error(e);
-        return response.json({
+        return cors.json({
             "message": e.message
         }).error();
     }
