@@ -62,9 +62,12 @@ LogEntry.getByType = function(type /*, [type[, type]...] */) {
 LogEntry.getEntriesSince = function(date /*, [type[, type]...] */) {
     var query = "from LogEntry l where l.createtime > :date";
     if (arguments.length > 1) {
-        query += " and l.type in (" + Array.prototype.join.call(arguments, ", ") + ")";
+        query += " and l.type in (" +
+                Array.prototype.slice.call(arguments, 1).join(", ") + ")";
     }
-    return store.query(query);
+    return store.query(query, {
+        "date": date
+    });
 };
 
 LogEntry.getRemovedPackages = function(date) {
