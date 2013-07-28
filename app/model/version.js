@@ -87,15 +87,14 @@ Version.create = function(pkg, descriptor, filename, filesize, checksums, creato
 Version.remove = function(pkg, version) {
     if (pkg.isLatestVersion(version)) {
         // re-assign the latest version of the package
-        var versionNumbers = semver.sort(pkg.versions.map(function(v) {
+        var latest = semver.sort(pkg.versions.map(function(v) {
             return v.version;
-        }), -1);
-        pkg.latestVersion = pkg.getVersion(versionNumbers[1]);
+        }), -1)[1] || null;
+        pkg.latestVersion = (latest && pkg.getVersion(latest)) || null;
         pkg.save();
     }
     version.remove();
     pkg.versions.invalidate();
-    return;
 };
 
 Version.getByVersion = function(version, pkg) {
