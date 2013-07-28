@@ -107,7 +107,7 @@ Version.getByVersion = function(version, pkg) {
 Version.getByPackage = function(pkg) {
     return store.query("from Version v where v.package = :pkgId", {
         "pkgId": pkg._id
-    }) || null;
+    });
 };
 
 Version.prototype.touch = function() {
