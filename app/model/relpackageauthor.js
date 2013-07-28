@@ -50,5 +50,5 @@ RelPackageAuthor.get = function(pkg, author, role) {
         "pkgId": pkg._id,
         "authorId": author._id,
         "role": role
-    })[0];
+    })[0] || null;
 };
