@@ -13,11 +13,7 @@ var index = require("./index");
 var mail = require("ringo-mail");
 var {AuthenticationError, RegistryError} = require("./errors");
 
-export("authenticate", "publishPackage",
-        "publishFile", "unpublish", "storeTemporaryFile", "createFileName",
-        "initPasswordReset", "resetPassword", "addOwner", "removeOwner");
-
-function authenticate(username, password) {
+exports.authenticate = function(username, password) {
     var user = User.getByName(username);
     if (user == undefined) {
         throw new AuthenticationError("Unknown user " + username);
@@ -28,7 +24,7 @@ function authenticate(username, password) {
         throw new AuthenticationError("Password incorrect");
     }
     return user;
-}
+};
 
 /**
  * Saves the file in the temporary directory defined in config.tmpDir and
@@ -38,7 +34,7 @@ function authenticate(username, password) {
  * in bytes and an object containing various checksums
  * @type Array
  */
-function storeTemporaryFile(bytes, filename) {
+exports.storeTemporaryFile = function(bytes, filename) {
     var checksums = {
         "md5": null,
         "sha1": null,
@@ -76,9 +72,17 @@ function storeTemporaryFile(bytes, filename) {
         }
     }
     return [path, bytes.length, checksums];
-}
+};
 
-function publishPackage(descriptor, filename, filesize, checksums, user, force) {
+var createPackage = exports.createPackage = function(name, author, owner) {
+    var pkg = Package.create(name, author, owner);
+    // add the initial publisher to the list of package owners
+    RelPackageOwner.create(pkg, owner, owner).save();
+    pkg.save();
+    return pkg;
+};
+
+exports.publishPackage = function(descriptor, filename, filesize, checksums, user, force) {
     var pkg = Package.getByName(descriptor.name);
     if (pkg != null && !pkg.isOwner(user)) {
         throw new AuthenticationError("Only owners of a package are allowed to publish");
@@ -86,31 +90,31 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
     var logEntryType = LogEntry.TYPE_ADD;
     store.beginTransaction();
     try {
-        // author (optional, using first contributor if not specified)
-        var author = (description.author && storeAuthor(descriptor.author));
         // contributors and maintainers
         var contributors = descriptor.contributors.map(storeAuthor);
         var maintainers = descriptor.maintainers.map(storeAuthor);
+        // author (optional, using first contributor if not specified)
+        var author = (descriptor.author && storeAuthor(descriptor.author)) ||
+                contributors[0];
+        var version = null;
         if (pkg == null) {
-            pkg = Package.create(descriptor.name, author || contributors[0], user);
-            // add the initial publisher to the list of package owners
-            RelPackageOwner.create(pkg, user, user).save();
+            pkg = createPackage(descriptor.name, author, user);
+        } else {
+            version = pkg.getVersion(descriptor.version);
         }
         // store/update version
-        var version = pkg._id && pkg.getVersion(descriptor.version);
         if (!version) {
             version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
-            version.save();
-            pkg.versions.invalidate();
-            pkg.latestVersion = pkg.findLatestVersion();
         } else if (force) {
-            version.update(descriptor, filename, filesize, checksums).save();
-            pkg.versions.invalidate();
+            version.update(descriptor, filename, filesize, checksums);
             logEntryType = LogEntry.TYPE_UPDATE;
         } else {
             throw new Error("Version " + version.version + " of package " +
                     descriptor.name + " has already been published");
         }
+        version.save();
+        pkg.versions.invalidate();
+        pkg.latestVersion = pkg.findLatestVersion();
         pkg.touch();
         pkg.save();
 
@@ -126,14 +130,15 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
         index.manager.update("id", pkg._id, index.createDocument(pkg));
 
         store.commitTransaction();
+        return [pkg, version];
     } catch (e) {
-        log.info(e);
+        log.error(e);
         store.abortTransaction();
         throw e;
     }
-}
+};
 
-function publishFile(tmpFilePath, filename) {
+exports.publishFile = function(tmpFilePath, filename) {
     if (!fs.exists(config.downloadDir) || !fs.isWritable(config.downloadDir)) {
         throw new Error("Unable to store package archive:", config.downloadDir,
                 "doesn't exist or isn't writable");
@@ -146,14 +151,14 @@ function publishFile(tmpFilePath, filename) {
     }
     fs.move(tmpFilePath, destPath);
     return destPath;
-}
+};
 
-function createFileName(tmpFilePath, pkgName, version) {
+exports.createFileName = function(tmpFilePath, pkgName, version) {
     var extension = fs.extension(tmpFilePath);
     return pkgName + "-" + version + extension;
-}
+};
 
-function unpublish(pkg, version, user) {
+exports.unpublish = function(pkg, version, user) {
     if (!pkg.isOwner(user)) {
         throw new AuthenticationError("Only the original publisher of a package can unpublish");
     }
@@ -169,11 +174,6 @@ function unpublish(pkg, version, user) {
             index.manager.remove("id", pkg._id);
             LogEntry.create(LogEntry.TYPE_DELETE, pkg.name, null, user).save();
         } else {
-            try {
-                version = semver.cleanVersion(version);
-            } catch (e) {
-                throw new Error("Invalid version '" + version + "'");
-            }
             var pkgVersion = pkg.getVersion(version);
             if (!pkgVersion) {
                 throw new Error("Version " + version + " of package " + pkg.name + " does not exist");
@@ -195,14 +195,13 @@ function unpublish(pkg, version, user) {
             }
         }
         store.commitTransaction();
-        return;
     } catch (e) {
         store.abortTransaction();
         throw e;
     }
-}
+};
 
-function removeArchive(filename) {
+var removeArchive = exports.removeArchive = function(filename) {
     var path = fs.join(config.downloadDir, filename);
     if (!fs.exists(path)) {
         log.warn("Published package archive", path, "not found");
@@ -210,44 +209,30 @@ function removeArchive(filename) {
         fs.remove(path);
         log.info("Removed published package archive", path);
     }
-}
+};
 
-function removeVersionArchive(version) {
+var removeVersionArchive = exports.removeVersionArchive = function(version) {
     removeArchive(version.filename);
-}
+};
 
-function removePackageArchive(pkg) {
-    for each (let version in pkg.versions) {
-        removeVersionArchive(version);
-    }
-}
+var removePackageArchive = exports.removePackageArchive = function(pkg) {
+    pkg.versions.forEach(removeVersionArchive)
+};
 
-function storeAuthor(data) {
-    var author = null;
-    if (data.hasOwnProperty("email")) {
-        author = Author.getByEmail(data.email);
-    }
-    if (author === null) {
+var storeAuthor = exports.storeAuthor = function(data) {
+    var author = Author.getByNameAndEmail(data.name, data.email);
+    if (!author) {
         author = Author.create(data.name, data.email, data.web);
         author.save();
-    } else {
-        // update author with values received
-        var modified = false;
-        for each (var key in ["name", "email", "web"]) {
-            if (data.hasOwnProperty(key) && data[key] != author[key]) {
-                author[key] = data[key];
-                modified = true;
-            }
-        }
-        if (modified) {
-            author.save();
-        }
+    } else if (data.web && data.web != author.web) {
+        author.web = data.web;
+        author.save();
     }
     return author;
-}
+};
 
-function storeAuthorRelations(pkg, collection, authors, role) {
-    log.debug("Storing", role, "relations between", pkg.name, "and authors");
+var storeAuthorRelations = exports.storeAuthorRelations = function(pkg, collection, authors, role) {
+    log.debug("Storing", role, "relations of", pkg.name);
     // add authors in list if they aren't already
     for each (let author in authors) {
         if (collection.indexOf(author) < 0) {
@@ -264,15 +249,13 @@ function storeAuthorRelations(pkg, collection, authors, role) {
     collection.filter(function(author) {
         return ids.indexOf(author._id) < 0;
     }).forEach(function(author) {
-        var relation = RelPackageAuthor.get(pkg, author, role);
-        relation.remove();
+        RelPackageAuthor.get(pkg, author, role).remove();
         collection.invalidate();
         log.info("Removed", author.name, "as", role, "from", pkg.name);
-    })
-    return;
-}
+    });
+};
 
-function initPasswordReset(user, email) {
+exports.initPasswordReset = function(user, email) {
     if (user.email != email) {
         throw new AuthenticationError("Email address does not match");
     }
@@ -303,9 +286,9 @@ function initPasswordReset(user, email) {
         store.abortTransaction();
         throw e;
     }
-}
+};
 
-function resetPassword(user, tokenStr, password) {
+exports.resetPassword = function(user, tokenStr, password) {
     var token = ResetToken.getByUser(user);
     if (!token || !token.evaluate(user, tokenStr)) {
         throw new AuthenticationError("Password reset token is invalid");
@@ -323,9 +306,9 @@ function resetPassword(user, tokenStr, password) {
         log.error(e);
         throw e;
     }
-}
+};
 
-function addOwner(pkg, owner, user) {
+exports.addOwner = function(pkg, owner, user) {
     if (!pkg.isOwner(user)) {
         throw new AuthenticationError("Only a package owner can add additional owners");
     } else if (pkg.isOwner(owner)) {
@@ -335,18 +318,18 @@ function addOwner(pkg, owner, user) {
     store.beginTransaction();
     try {
         RelPackageOwner.create(pkg, owner, user).save();
-        pkg.owners.invalidate();
         pkg.touch();
         pkg.save();
+        pkg.owners.invalidate();
         store.commitTransaction();
     } catch (e) {
         store.abortTransaction();
         log.error(e);
         throw e;
     }
-}
+};
 
-function removeOwner(pkg, owner, user) {
+exports.removeOwner = function(pkg, owner, user) {
     if (!pkg.isOwner(user)) {
         throw new AuthenticationError("Only a package owner can remove other owners");
     } else if (!pkg.isOwner(owner)) {
@@ -367,4 +350,4 @@ function removeOwner(pkg, owner, user) {
         log.error(e);
         throw e;
     }
-}
+};

@@ -100,10 +100,11 @@ app.del("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     }
     try {
         var user = registry.authenticate(username, password);
-        registry.unpublish(pkg, versionStr, user);
-        log.info("Unpublished", versionStr, "of package", pkg.name);
+        var version = semver.cleanVersion(versionStr);
+        registry.unpublish(pkg, version, user);
+        log.info("Unpublished", version, "of package", pkg.name);
         return response.json({
-            "message": "Version " + versionStr + " of package " +
+            "message": "Version " + version + " of package " +
                 pkg.name + " has been removed"
         });
     } catch (e if e instanceof AuthenticationError) {
