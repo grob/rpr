@@ -175,7 +175,7 @@ exports.testIsOwner = function() {
 exports.testIsLatestVersion = function() {
     var pkg = Package.create(packagename, author, user);
     var version1 = Version.create(pkg, descriptor, filename, filesize, checksums, user);
-    var descriptor2 = objects.clone(descriptor);
+    var descriptor2 = objects.clone(descriptor, {}, true);
     var version2 = Version.create(pkg, descriptor2, filename, filesize, checksums, user);
     pkg.latestVersion = version1;
     version1.save();
@@ -208,7 +208,7 @@ exports.testTouch = function() {
 exports.testFindLatestVersion = function() {
     var pkg = Package.create(packagename, author, user);
     var version1 = Version.create(pkg, descriptor, filename, filesize, checksums, user);
-    var descriptor2 = objects.clone(descriptor);
+    var descriptor2 = objects.clone(descriptor, {}, true);
     descriptor2.version = "0.1beta2";
     var version2 = Version.create(pkg, descriptor2, filename, filesize, checksums, user);
     version1.save();

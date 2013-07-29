@@ -25,7 +25,7 @@ var descriptor = {
         "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
     }]
 };
-var descriptor2 = objects.clone(descriptor);
+var descriptor2 = objects.clone(descriptor, {}, true);
 descriptor2.version = "0.1beta2";
 
 var filename = packagename + ".zip";
@@ -173,7 +173,7 @@ exports.testSerialize = function() {
 exports.testUpdate = function() {
     var version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
     version.save();
-    var newDescriptor = objects.clone(descriptor);
+    var newDescriptor = objects.clone(descriptor, {}, true);
     newDescriptor.description = "a new testpackage";
     var newFilename = "new" + filename;
     var newFilesize = 1000;
