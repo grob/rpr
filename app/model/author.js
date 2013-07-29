@@ -32,8 +32,8 @@ var Author = exports.Author = store.defineEntity("Author", {
 Author.create = function(name, email, web) {
     return new Author({
         "name": name,
-        "email": email,
-        "web": web,
+        "email": email || null,
+        "web": web || null,
         "createtime": new Date()
     });
 };
@@ -47,6 +47,18 @@ Author.getByName = function(name) {
 Author.getByEmail = function(email) {
     return store.query("from Author a where a.email = :email", {
         "email": email
+    })[0] || null;
+};
+
+Author.getByNameAndEmail = function(name, email) {
+    if (typeof(email) === "string" && email.length > 0) {
+        return store.query("from Author a where a.name = :name and a.email = :email", {
+            "name": name,
+            "email": email
+        })[0] || null;
+    }
+    return store.query("from Author a where a.name = :name and a.email is null", {
+        "name": name
     })[0] || null;
 };
 

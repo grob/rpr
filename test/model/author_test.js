@@ -29,15 +29,22 @@ exports.testCreate = function() {
 exports.testGetByName = function() {
     Author.create(name, email, web).save();
     var author = Author.getByName(name);
-    assert.isNotNull(author);
     assert.strictEqual(author.name, name);
 };
 
 exports.testGetByEmail = function() {
     Author.create(name, email, web).save();
     var author = Author.getByEmail(email);
-    assert.isNotNull(author);
     assert.strictEqual(author.name, name);
+};
+
+exports.testGetByNameAndEmail = function() {
+    Author.create(name, email, web).save();
+    Author.create(name).save();
+    var author = Author.getByNameAndEmail(name, email);
+    assert.strictEqual(author.name, name);
+    assert.strictEqual(author.email, email);
+    assert.isFalse(Author.getByNameAndEmail(name).equals(author));
 };
 
 exports.testSerialize = function() {
