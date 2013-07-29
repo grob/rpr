@@ -87,10 +87,7 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
     store.beginTransaction();
     try {
         // author (optional, using first contributor if not specified)
-        var author = null;
-        if (descriptor.author != undefined) {
-            author = storeAuthor(descriptor.author);
-        }
+        var author = (description.author && storeAuthor(descriptor.author));
         // contributors and maintainers
         var contributors = descriptor.contributors.map(storeAuthor);
         var maintainers = descriptor.maintainers.map(storeAuthor);
@@ -98,7 +95,6 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             pkg = Package.create(descriptor.name, author || contributors[0], user);
             // add the initial publisher to the list of package owners
             RelPackageOwner.create(pkg, user, user).save();
-            pkg.owners.invalidate();
         }
         // store/update version
         var version = pkg._id && pkg.getVersion(descriptor.version);
@@ -106,20 +102,9 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
             version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
             version.save();
             pkg.versions.invalidate();
-            pkg.latestVersion = version;
+            pkg.latestVersion = pkg.findLatestVersion();
         } else if (force) {
-            version.descriptor = JSON.stringify(descriptor);
-            version.filename = filename;
-            version.filesize = filesize;
-            version.md5 = checksums.md5;
-            version.sha1 = checksums.sha1;
-            version.sha256 = checksums.sha256;
-            version.touch();
-            version.save();
-            // update package too, if this is the latest version
-            if (pkg.isLatestVersion(version)) {
-                pkg.descriptor = version.descriptor;
-            }
+            version.update(descriptor, filename, filesize, checksums).save();
             pkg.versions.invalidate();
             logEntryType = LogEntry.TYPE_UPDATE;
         } else {
@@ -137,7 +122,6 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
 
         // add a log entry
         LogEntry.create(logEntryType, descriptor.name, descriptor.version, user).save();
-
         // (re-)add to search index
         index.manager.update("id", pkg._id, index.createDocument(pkg));
 
@@ -147,7 +131,6 @@ function publishPackage(descriptor, filename, filesize, checksums, user, force) 
         store.abortTransaction();
         throw e;
     }
-    return;
 }
 
 function publishFile(tmpFilePath, filename) {
@@ -155,14 +138,14 @@ function publishFile(tmpFilePath, filename) {
         throw new Error("Unable to store package archive:", config.downloadDir,
                 "doesn't exist or isn't writable");
     }
-    var dest = fs.join(config.downloadDir, filename);
-    log.info("Moving package file from", tmpFilePath, "to", dest);
-    if (fs.exists(dest)) {
-        log.info("Removing already published file", dest);
-        fs.remove(dest);
+    var destPath = fs.join(config.downloadDir, filename);
+    log.info("Moving package file from", tmpFilePath, "to", destPath);
+    if (fs.exists(destPath)) {
+        log.info("Removing already published file", destPath);
+        fs.remove(destPath);
     }
-    fs.move(tmpFilePath, dest);
-    return;
+    fs.move(tmpFilePath, destPath);
+    return destPath;
 }
 
 function createFileName(tmpFilePath, pkgName, version) {
@@ -227,7 +210,6 @@ function removeArchive(filename) {
         fs.remove(path);
         log.info("Removed published package archive", path);
     }
-    return;
 }
 
 function removeVersionArchive(version) {
@@ -235,8 +217,8 @@ function removeVersionArchive(version) {
 }
 
 function removePackageArchive(pkg) {
-    for each (var pkgVersion in pkg.versions) {
-        removeVersionArchive(pkgVersion);
+    for each (let version in pkg.versions) {
+        removeVersionArchive(version);
     }
 }
 

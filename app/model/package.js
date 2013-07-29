@@ -15,10 +15,6 @@ var Package = exports.Package = store.defineEntity("Package", {
             "column": "PKG_NAME",
             "length": 255
         },
-        "descriptor": {
-            "type": "text",
-            "column": "PKG_DESCRIPTOR"
-        },
         "createtime": {
             "type": "timestamp",
             "column": "PKG_CREATETIME"
@@ -140,6 +136,15 @@ Package.prototype.isOwner = function(user) {
 
 Package.prototype.isLatestVersion = function(version) {
     return this.latestVersion.equals(version);
+};
+
+Package.prototype.findLatestVersion = function() {
+    return this.versions.all.reduce(function(prev, current) {
+        if (semver.isGreater(current.version, prev.version)) {
+            return current;
+        }
+        return prev;
+    });
 };
 
 Package.prototype.equals = function(pkg) {

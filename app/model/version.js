@@ -151,3 +151,14 @@ Version.prototype.serialize = function() {
 Version.prototype.equals = function(version) {
     return this._key.equals(version._key);
 };
+
+Version.prototype.update = function(descriptor, filename, filesize, checksums) {
+    this.descriptor = JSON.stringify(descriptor);
+    this.filename = filename;
+    this.filesize = filesize;
+    this.md5 = checksums.md5;
+    this.sha1 = checksums.sha1;
+    this.sha256 = checksums.sha256;
+    this.touch();
+    return this;
+};
