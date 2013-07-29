@@ -205,6 +205,19 @@ exports.testTouch = function() {
             modifytime.getTime());
 };
 
+exports.testFindLatestVersion = function() {
+    var pkg = Package.create(packagename, author, user);
+    var version1 = Version.create(pkg, descriptor, filename, filesize, checksums, user);
+    var descriptor2 = objects.clone(descriptor);
+    descriptor2.version = "0.1beta2";
+    var version2 = Version.create(pkg, descriptor2, filename, filesize, checksums, user);
+    version1.save();
+    version2.save();
+    pkg.save();
+    var latest = pkg.findLatestVersion();
+    assert.isTrue(latest.equals(version2));
+};
+
 if (require.main == module.id) {
     system.exit(require("test").run.apply(null,
             [exports].concat(system.args.slice(1))));
