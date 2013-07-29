@@ -170,6 +170,30 @@ exports.testSerialize = function() {
     }
 };
 
+exports.testUpdate = function() {
+    var version = Version.create(pkg, descriptor, filename, filesize, checksums, user);
+    version.save();
+    var newDescriptor = objects.clone(descriptor);
+    newDescriptor.description = "a new testpackage";
+    var newFilename = "new" + filename;
+    var newFilesize = 1000;
+    var newChecksums = {
+        "md5": "newmd5",
+        "sha1": "newsha1",
+        "sha256": "newsha256"
+    };
+    version.update(newDescriptor, newFilename, newFilesize, newChecksums);
+    // .update() does *not* persist
+    assert.strictEqual(Version.get(version._id).filename, filename);
+    // compare properties
+    assert.deepEqual(JSON.parse(version.descriptor), newDescriptor);
+    assert.strictEqual(version.filename, newFilename);
+    assert.strictEqual(version.filesize, newFilesize);
+    assert.strictEqual(version.md5, newChecksums.md5);
+    assert.strictEqual(version.sha1, newChecksums.sha1);
+    assert.strictEqual(version.sha256, newChecksums.sha256);
+};
+
 if (require.main == module.id) {
     system.exit(require("test").run.apply(null,
             [exports].concat(system.args.slice(1))));
