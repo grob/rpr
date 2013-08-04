@@ -35,7 +35,7 @@ app.get("/:pkgName", function(request, pkgName, versionStr) {
     log.info("Package", pkgName, "not found");
     return cors.json({
         "message": "Package '" + pkgName + "' not found"
-    }).notfound();
+    }).notFound();
 });
 
 /**
@@ -53,7 +53,7 @@ app.get("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     log.info("Version", versionStr, "of package", pkgName, "does not exist");
     return cors.json({
         "message": "Version " + versionStr + " of package '" + pkgName + "' not found"
-    }).notfound();
+    }).notFound();
 });
 
 /**
@@ -65,7 +65,7 @@ app.del("/:pkgName", function(request, pkgName) {
     if (pkg == null) {
         return response.json({
             "message": "Package '" + pkgName + "' does not exist"
-        }).notfound();
+        }).notFound();
     }
     try {
         var user = registry.authenticate(username, password);
@@ -96,7 +96,7 @@ app.del("/:pkgName/:versionStr", function(request, pkgName, versionStr) {
     if (pkg == null) {
         return response.json({
             "message": "Version " + versionStr + " of package '" + pkgName + "' does not exist"
-        }).notfound();
+        }).notFound();
     }
     try {
         var user = registry.authenticate(username, password);

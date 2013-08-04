@@ -19,7 +19,7 @@ app.put("/:pkgName/:ownerName", function(request, pkgName, ownerName) {
     if (pkg == null) {
         return response.json({
             "message": "Package '" + pkgName + "' does not exist"
-        }).notfound();
+        }).notFound();
     }
     var owner = User.getByName(ownerName);
     if (owner == null) {
@@ -60,7 +60,7 @@ app.del("/:pkgName/:ownerName", function(request, pkgName, ownerName) {
     if (pkg == null) {
         return response.json({
             "message": "Package " + pkgName + " does not exist"
-        }).notfound();
+        }).notFound();
     }
     var owner = User.getByName(ownerName);
     if (owner == null) {

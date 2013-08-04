@@ -1,7 +1,8 @@
 var base64 = require('ringo/base64');
 var semver = require("ringo-semver");
 
-export("parseAuthor", "evalDescriptor", "normalizeDescriptor", "bytesToHex", "hexToBytes", "getCredentials");
+export("parseAuthor", "evalDescriptor", "normalizeDescriptor", "bytesToHex",
+        "hexToBytes", "getCredentials", "sanitizeFilename");
 
 var parseAuthor = function(str) {
     var result = {};
@@ -43,6 +44,8 @@ var parseAuthor = function(str) {
 var evalDescriptor = function(descriptor) {
     if (!descriptor.name) {
         throw new Error("Missing package name");
+    } else if (/[^a-z0-9\._\-]/.test(descriptor.name)) {
+        throw new Error("Invalid package name");
     }
     if (!descriptor.version) {
         throw new Error("Missing version number");
@@ -98,4 +101,8 @@ var hexToBytes = function(str) {
 
 var getCredentials = function(request) {
     return base64.decode(request.headers.authorization.replace(/^Basic /, '')).split(':');
+};
+
+var sanitizeFilename = function(name) {
+    return name.replace(/\.{2,}|[^A-Za-z0-9_\-\.]/g, "");
 };

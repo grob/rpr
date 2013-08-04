@@ -20,7 +20,7 @@ app.get("/:username", function(request, username) {
     log.info("User", username, "not found");
     return response.json({
         "message": "User '" + username + "' does not exist"
-    }).notfound();
+    }).notFound();
 });
 
 /**
@@ -34,7 +34,7 @@ app.get("/:username/salt", function(request, username) {
     log.info("Unknown user", username);
     return response.json({
         "message": "Unknown user"
-    }).notfound();
+    }).notFound();
 });
 
 /**
@@ -46,7 +46,7 @@ app.post("/:username/reset", function(request, username) {
     if (user === null) {
         return response.json({
             "message": "Unknown user"
-        }).notfound();
+        }).notFound();
     }
     try {
         registry.initPasswordReset(user, email);
@@ -78,7 +78,7 @@ app.post("/:username/password", function(request, username) {
     if (user === null) {
         return response.json({
             "message": "Unknown user"
-        }).notfound();
+        }).notFound();
     }
     try {
         registry.resetPassword(user, token, password);
