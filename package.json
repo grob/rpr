@@ -1,6 +1,6 @@
 {
     "name": "rpr",
-    "version": "0.3.0",
+    "version": "0.5.0",
     "description": "A package registry application for RingoJS",
     "keywords": ["package registry", "rp", "ringojs", "modules"],
     "homepage": "https://github.com/grob/rpr/",
@@ -11,7 +11,7 @@
     },
     "contributors": [],
     "dependencies": {
-        "ringo-sqlstore": ">=0.2",
+        "ringo-sqlstore": ">=0.3",
         "lucindex": ">= 0.1.0",
         "stick": ">=0.1.0",
         "ringo-semver": ">=0.1.1",
