@@ -2,16 +2,19 @@ var log = require("ringo/logging").getLogger(module.id);
 var {Application} = require("stick");
 var {Package, LogEntry} = require("../model/all");
 var response = require("ringo/jsgi/response");
-var cors = require("./cors");
 var index = require("../index");
 
 var app = exports.app = new Application();
-app.configure("mount", "route");
+app.configure("cors", "mount", "route");
 
 app.mount("/packages", module.resolve("./packages"));
 app.mount("/users", module.resolve("./users"));
 app.mount("/owners", module.resolve("./owners"));
 
+app.cors({
+   allowOrigin: ["*"],
+   allowMethods: ["GET"]
+});
 
 /**
  * Returns the packages that have been added/updated/removed since
@@ -47,10 +50,10 @@ app.get("/search", function(request) {
     try {
         var result = index.search(request.queryParams.q,
                 request.queryParams.l, request.queryParams.o);
-        return cors.json(result);
+        return response.json(result);
     } catch (e) {
         log.error(e);
-        return cors.json({
+        return response.json({
             "message": e.message
         }).error();
     }
