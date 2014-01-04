@@ -66,8 +66,19 @@ Author.prototype.serialize = function() {
     return {
         "name": this.name,
         "email": this.email,
-        "web": this.web
+        "web": this.web,
+        "gravatar": this.getGravatarHash()
     };
+};
+
+Author.prototype.getGravatarHash = function() {
+    if (this.email) {
+        var md5Digest = java.security.MessageDigest.getInstance("MD5");
+        var bytes = md5Digest.digest(this.email.trim().toLowerCase().toByteArray());
+        var bi = new java.math.BigInteger(1, bytes);
+        return java.lang.String.format("%0" + (bytes.length << 1) + "X", bi).toLowerCase();
+    }
+    return null;
 };
 
 Author.prototype.equals = function(author) {
