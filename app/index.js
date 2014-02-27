@@ -1,10 +1,12 @@
 var {indexDir} = require("./config/config");
 var {Index} = require("lucindex");
 var {Package} = require("./model/package");
-var {Document, Field, NumericField} = org.apache.lucene.document;
-var {MultiFieldQueryParser} = org.apache.lucene.queryParser;
+var {Document, Field, StringField, TextField, LongField} = org.apache.lucene.document;
+var {MultiFieldQueryParser} = org.apache.lucene.queryparser.classic;
 var {Version} = org.apache.lucene.util;
-var {Analyzer, PerFieldAnalyzerWrapper, LowerCaseFilter} = org.apache.lucene.analysis;
+var {Analyzer} = org.apache.lucene.analysis;
+var {LowerCaseFilter} = org.apache.lucene.analysis.core;
+var {PerFieldAnalyzerWrapper} = org.apache.lucene.analysis.miscellaneous;
 var {StandardAnalyzer, StandardTokenizer} = org.apache.lucene.analysis.standard;
 var {MatchAllDocsQuery, Sort, SortField} = org.apache.lucene.search;
 var {NGramTokenFilter} = org.apache.lucene.analysis.ngram;
@@ -14,11 +16,11 @@ const PAGE_SIZE = 20;
 
 var NGramAnalyzer = exports.NGramAnalyzer = function(minGram, maxGram) {
     return new Analyzer({
-        "tokenStream": function(fieldName, reader) {
-            var tokenStream = new StandardTokenizer(Version.LUCENE_35, reader);
-            tokenStream = new LowerCaseFilter(Version.LUCENE_35, tokenStream);
-            tokenStream = new NGramTokenFilter(tokenStream, minGram, maxGram);
-            return tokenStream;
+        "createComponents": function(fieldName, reader) {
+            var source = new StandardTokenizer(Version.LUCENE_47, reader);
+            var filter = new LowerCaseFilter(Version.LUCENE_47, source);
+            filter = new NGramTokenFilter(Version.LUCENE_47, filter, minGram, maxGram);
+            return new Analyzer.TokenStreamComponents(source, filter);
         }
     });
 };
@@ -36,28 +38,21 @@ var manager = exports.manager = module.singleton("index", function() {
 var createDocument = exports.createDocument = function(pkg) {
     var doc = new Document();
     var descriptor = JSON.parse(pkg.latestVersion.descriptor);
-    doc.add(new Field("id", pkg._id,
-            Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO));
-    doc.add(new Field("name", pkg.name,
-            Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
-    doc.add(new Field("name_ngrams", pkg.name,
-            Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
-    doc.add(new Field("description", descriptor.description,
-            Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
-    doc.add((new NumericField("modifytime")).setLongValue(Math.abs(pkg.modifytime.getTime() / 1000)));
+    doc.add(new StringField("id", pkg._id, Field.Store.YES));
+    doc.add(new TextField("name", pkg.name, Field.Store.NO));
+    doc.add(new TextField("name_ngrams", pkg.name, Field.Store.NO));
+    doc.add(new TextField("description", descriptor.description, Field.Store.NO));
+    doc.add(new LongField("modifytime", Math.abs(pkg.modifytime.getTime() / 1000),
+            Field.Store.NO));
     for each (var keyword in descriptor.keywords) {
-        doc.add(new Field("keyword", keyword,
-                Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
+        doc.add(new TextField("keyword", keyword, Field.Store.NO));
     }
-    doc.add(new Field("author", pkg.author.name,
-            Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
+    doc.add(new TextField("author", pkg.author.name, Field.Store.NO));
     for each (var maintainer in pkg.maintainers) {
-        doc.add(new Field("maintainer", maintainer.name,
-                Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
+        doc.add(new TextField("maintainer", maintainer.name, Field.Store.NO));
     }
     for each (var contributor in pkg.contributors) {
-        doc.add(new Field("contributor", contributor.name,
-                Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO));
+        doc.add(new TextField("contributor", contributor.name, Field.Store.NO));
     }
     return doc;
 };
@@ -66,8 +61,8 @@ exports.search = function(q, length, offset) {
     var query = null;
     var sort = new Sort(SortField.FIELD_SCORE);
     if (typeof(q) === "string" && q.length > 0) {
-        var parser = new MultiFieldQueryParser(Version.LUCENE_35,
-                 ["name", "name_ngrams", "description", "keyword", "author", "maintainer", "contributor"],
+        var parser = new MultiFieldQueryParser(Version.LUCENE_47,
+                ["name", "name_ngrams", "description", "keyword", "author", "maintainer", "contributor"],
                 standardAnalyzer, {
                     "name": Float.parseFloat(2),
                     "keyword": Float.parseFloat(1.5)
@@ -75,15 +70,24 @@ exports.search = function(q, length, offset) {
         query = parser.parse(q || "");
     } else {
         query = new MatchAllDocsQuery();
-        sort.setSort(new SortField("modifytime", SortField.LONG, true));
+        sort.setSort(new SortField("modifytime", SortField.Type.LONG, true));
     }
-    var topDocs = manager.searcher.search(query, null, 50, sort);
     var result = {
         "offset": 0,
         "length": 0,
         "total": 0,
         "hits": []
     };
+    var searcher = null;
+    var topDocs = null;
+    try {
+        searcher = manager.getSearcher();
+        topDocs = searcher.search(query, null, 50, sort);
+    } finally {
+        if (searcher !== null) {
+            manager.releaseSearcher(searcher);
+        }
+    }
     if (topDocs.totalHits > 0) {
         result.total = topDocs.totalHits;
         var start = result.offset = Math.min(topDocs.totalHits, Math.max(0, offset || 0));
