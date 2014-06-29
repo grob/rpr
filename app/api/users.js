@@ -100,6 +100,34 @@ app.post("/:username/password", function(request, username) {
 });
 
 /**
+ * Changes a user's email address
+ */
+app.post("/email", function(request) {
+    var [username, password] = utils.getCredentials(request);
+    var email = request.postParams.email;
+    try {
+        var user = registry.authenticate(username, password);
+        user.email = email.trim();
+        user.touch();
+        user.save();
+        log.info("Changed email address of", username, "to", email);
+        return response.json({
+            "message": "Your email address has been changed"
+        });
+    } catch (e if e instanceof AuthenticationError) {
+        log.info("Authentication failure of", username);
+        return response.json({
+            "message": e.message
+        }).forbidden();
+    } catch (e) {
+        log.error(e);
+        return response.json({
+            "message": e.message
+        }).error();
+    }
+});
+
+/**
  * Creates a new user account
  */
 app.post("/", function(request) {
@@ -154,4 +182,3 @@ app.post("/password", function(request) {
         }).error();
     }
 });
-
