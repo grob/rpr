@@ -44,3 +44,4 @@ var queryCache = module.singleton("queryCache", function() {
 var store = exports.store = new Store(connectionPool);
 store.setEntityCache(entityCache);
 store.setQueryCache(queryCache);
+store.registerEntityModule(module.resolve("./all"));
