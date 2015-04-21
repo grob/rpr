@@ -17,7 +17,7 @@ var httpServer = new Server({
 /**
  * Called when the application starts
  */
-var start = function() {
+var start = exports.start = function() {
     log.info("Starting application");
     httpServer.start();
     // register shutdown hook to stop ftp server
@@ -29,7 +29,7 @@ var start = function() {
 /**
  * Called when the engine is shut down
  */
-var stop = function() {
+var stop = exports.stop = function() {
     httpServer.stop();
     httpServer.destroy();
     store.connectionPool.close();
